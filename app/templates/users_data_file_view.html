@@ -1,0 +1,44 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h4 class="mb-1">Uploaded File Preview</h4>
+    <div class="text-muted">{{ log.file_name }} | {{ log.option_used }}</div>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('main.users_data') }}" class="btn btn-outline-secondary">Back</a>
+    <a href="{{ url_for('main.users_data_download', log_id=log.id) }}" class="btn btn-outline-dark">Download</a>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-bordered mb-0">
+        <thead>
+          <tr>
+            {% for col in header %}
+            <th>{{ col if col else 'Column' }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            {% for val in row %}
+            <td>{{ val }}</td>
+            {% endfor %}
+          </tr>
+          {% else %}
+          <tr><td class="text-center text-muted">No preview rows found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+

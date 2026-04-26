@@ -1,0 +1,303 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title }}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+  <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+  <style>
+    :root {
+      --ink-900: #0f172a;
+      --ink-700: #334155;
+      --ink-500: #64748b;
+      --line: rgba(15, 23, 42, 0.09);
+      --panel-bg: rgba(255, 255, 255, 0.96);
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 48%, #f0f9ff 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink-900);
+    }
+
+    .shell {
+      max-width: 1420px;
+      margin: 0 auto;
+      padding: 30px 16px 44px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel-bg);
+      box-shadow: 0 20px 46px rgba(15, 23, 42, 0.10);
+    }
+
+    .hero {
+      padding: 26px;
+      margin-bottom: 18px;
+    }
+
+    .hero-kicker {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--ink-900);
+      color: #fff;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .hero-title {
+      font-size: clamp(1.9rem, 3vw, 2.8rem);
+      line-height: 1.05;
+      font-weight: 800;
+      margin: 0 0 10px;
+    }
+
+    .hero-subtitle {
+      color: var(--ink-500);
+      font-size: 1.03rem;
+      margin: 0;
+      max-width: 760px;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-btn {
+      border-radius: 11px;
+      min-height: 46px;
+      padding: 0 18px;
+      font-weight: 600;
+    }
+
+    .kpi-card {
+      padding: 18px 18px 20px;
+      height: 100%;
+    }
+
+    .kpi-label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-500);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .kpi-value {
+      font-size: clamp(1.7rem, 2.1vw, 2.3rem);
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .group-card {
+      height: 100%;
+      padding: 22px;
+    }
+
+    .group-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .group-copy {
+      color: var(--ink-500);
+      font-size: 0.96rem;
+      margin-bottom: 14px;
+    }
+
+    .stack-btn {
+      border-radius: 11px;
+      min-height: 46px;
+      font-weight: 600;
+    }
+
+    .stack-gap {
+      display: grid;
+      gap: 10px;
+    }
+
+    .btn-analysis {
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%);
+      color: #fff;
+      border: 0;
+    }
+
+    .btn-analysis:hover {
+      background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%);
+      color: #fff;
+    }
+
+    .btn-heatmap {
+      background: linear-gradient(135deg, #047857 0%, #10b981 100%);
+      color: #fff;
+      border: 0;
+    }
+
+    .btn-heatmap:hover {
+      background: linear-gradient(135deg, #065f46 0%, #059669 100%);
+      color: #fff;
+    }
+
+    .btn-insight {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--ink-700);
+    }
+
+    .btn-insight:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: var(--ink-900);
+    }
+
+    .table-card {
+      margin-top: 18px;
+      padding: 22px;
+    }
+
+    .table-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .table-copy {
+      color: var(--ink-500);
+      margin-bottom: 14px;
+    }
+
+    .table thead th {
+      background: #f8fafc;
+      color: var(--ink-700);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .table td,
+    .table th {
+      vertical-align: middle;
+    }
+
+    .table tbody tr:nth-child(even) {
+      background: #fbfdff;
+    }
+
+    @media (max-width: 991px) {
+      .hero {
+        padding: 20px;
+      }
+
+      .group-card,
+      .table-card {
+        padding: 18px;
+      }
+
+      .hero-logo { display: block; height: 40px; width: auto; }
+    }
+  </style>
+</head>
+<body>
+<button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary position-fixed top-0 end-0 m-3" style="z-index:1100;">🌙</button>
+<div class="shell">
+  <div class="panel hero">
+    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+      <div>
+        <h1 class="hero-title">Advanced Features Hub</h1>
+        <p class="hero-subtitle">One workspace to jump between dashboard sections, heatmaps, and insight tools without losing context.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="btn btn-outline-secondary hero-btn" href="{{ url_for('main.home') }}">Home</a>
+        <a class="btn btn-dark hero-btn" href="{{ dashboard_url }}">Main Dashboard</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-3"><div class="panel kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value">{{ overview.total_spend }}</div></div></div>
+    <div class="col-md-3"><div class="panel kpi-card"><div class="kpi-label">Ads Sales</div><div class="kpi-value">{{ overview.ads_sales }}</div></div></div>
+    <div class="col-md-3"><div class="panel kpi-card"><div class="kpi-label">ACOS</div><div class="kpi-value">{{ overview.acos }}%</div></div></div>
+    <div class="col-md-3"><div class="panel kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">{{ overview.ctr }}%</div></div></div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-4">
+      <div class="panel group-card">
+        <div class="group-title">Analysis Navigation</div>
+        <div class="group-copy">Jump directly to core analysis blocks in the active {{ 'WoW' if analysis_mode == 'wow' else 'MoM' }} dashboard.</div>
+        <div class="stack-gap">
+          <a class="btn stack-btn btn-analysis" href="{{ dashboard_url }}#performance-charts">Performance Charts</a>
+          <a class="btn stack-btn btn-analysis" href="{{ dashboard_url }}#performer-sections">Performer Sections</a>
+          <a class="btn stack-btn btn-analysis" href="{{ dashboard_url }}#opportunity-finder">Opportunity Finder</a>
+          <a class="btn stack-btn btn-analysis" href="{{ dashboard_url }}#analysis-results">Analysis Results</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="panel group-card">
+        <div class="group-title">Heatmap Center</div>
+        <div class="group-copy">Open focused heatmaps for fast metric-level pattern detection.</div>
+        <div class="stack-gap">
+          <a class="btn stack-btn btn-heatmap" href="{{ heatmap_base_url }}?analyze=1&type={{ params.dimension }}&metric=acos">ACOS Heatmap</a>
+          <a class="btn stack-btn btn-heatmap" href="{{ heatmap_base_url }}?analyze=1&type={{ params.dimension }}&metric=tacos">TACOS Heatmap</a>
+          <a class="btn stack-btn btn-heatmap" href="{{ heatmap_base_url }}?analyze=1&type={{ params.dimension }}&metric=ctr">CTR Heatmap</a>
+          <a class="btn stack-btn btn-heatmap" href="{{ heatmap_base_url }}?analyze=1&type={{ params.dimension }}&metric=conversion_rate">Conversion Heatmap</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="panel group-card">
+        <div class="group-title">Insights Workspace</div>
+        <div class="group-copy">Access campaign, search-term, and weekly insight surfaces.</div>
+        <div class="stack-gap">
+          <a class="btn stack-btn btn-insight" href="{{ url_for('reports.campaign_more_insights') }}">Campaign Insights</a>
+          <a class="btn stack-btn btn-insight" href="{{ url_for('reports.campaign_performance_report') }}">Campaign Performance Report</a>
+          <a class="btn stack-btn btn-insight" href="{{ url_for('reports.search_term_report') }}">Search Term Report</a>
+          <a class="btn stack-btn btn-insight" href="{{ url_for('reports.wow_upload') }}">WoW Upload & Dashboard</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel table-card">
+    <div class="table-title">Top Entities Snapshot</div>
+    <div class="table-copy">Quick list of top entities by spend and sales performance.</div>
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Entity</th><th>Spend</th><th>Ads Sales</th><th>Total Sales</th><th>ACOS</th><th>CTR</th></tr></thead>
+        <tbody>
+          {% for row in top_entities %}
+          <tr><td>{{ row.name }}</td><td>{{ row.spend }}</td><td>{{ row.ads_sales }}</td><td>{{ row.total_sales }}</td><td>{{ row.acos }}%</td><td>{{ row.ctr }}%</td></tr>
+          {% else %}
+          <tr><td colspan="6" class="text-center text-muted">No entity snapshot data available for current filters.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+
+
+

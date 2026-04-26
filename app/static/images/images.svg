@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="InsightX icon">
+  <defs>
+    <linearGradient id="ix-icon-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#ix-icon-grad)"/>
+  <rect x="19" y="14" width="8" height="36" rx="4" fill="#ffffff"/>
+  <path d="M35 18 L48 45 M48 18 L35 45" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+</svg>

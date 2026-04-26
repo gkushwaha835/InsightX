@@ -1,0 +1,154 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">View Users Data</h4>
+  <div class="d-flex gap-2">
+    <a href="{{ export_url }}" class="btn btn-outline-primary">Export CSV</a>
+    <a href="{{ url_for('main.settings') }}" class="btn btn-outline-secondary">Back to Settings</a>
+  </div>
+</div>
+
+{% if restore_batch and restore_batch_count > 0 %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+  <div>
+    {{ restore_batch_count }} deleted activity row(s) can be restored.
+  </div>
+  <form method="post" action="{{ url_for('main.users_data_restore') }}" class="m-0">
+    <input type="hidden" name="batch_id" value="{{ restore_batch }}">
+    <button type="submit" class="btn btn-sm btn-warning">Restore Deleted Data</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-md-2">
+        <label class="form-label small text-muted mb-1">Date Preset</label>
+        <select class="form-select" name="preset">
+          <option value="all" {% if filters.preset == 'all' %}selected{% endif %}>All Time</option>
+          <option value="today" {% if filters.preset == 'today' %}selected{% endif %}>Today</option>
+          <option value="7d" {% if filters.preset == '7d' %}selected{% endif %}>Last 7 Days</option>
+          <option value="30d" {% if filters.preset == '30d' %}selected{% endif %}>Last 30 Days</option>
+          <option value="custom" {% if filters.preset == 'custom' %}selected{% endif %}>Custom</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small text-muted mb-1">From</label>
+        <input type="date" class="form-control" name="date_from" value="{{ filters.date_from }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small text-muted mb-1">To</label>
+        <input type="date" class="form-control" name="date_to" value="{{ filters.date_to }}">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small text-muted mb-1">Search</label>
+        <input type="text" class="form-control" name="q" value="{{ filters.q }}" placeholder="Email, phone, brand, top action">
+      </div>
+      <div class="col-md-1">
+        <label class="form-label small text-muted mb-1">Rows</label>
+        <select class="form-select" name="per_page">
+          {% for option in per_page_options %}
+          <option value="{{ option }}" {% if filters.per_page == option %}selected{% endif %}>{{ option }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <input type="hidden" name="sort_by" value="{{ sort_by }}">
+      <input type="hidden" name="sort_order" value="{{ sort_order }}">
+      <div class="col-md-2 d-flex gap-2">
+        <button type="submit" class="btn btn-primary w-100">Apply</button>
+        <a href="{{ url_for('main.users_data') }}" class="btn btn-outline-secondary w-100">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card metric-card h-100"><div class="card-body"><div class="text-muted small">Total Users</div><div class="h5 mb-0">{{ total_users }}</div></div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card metric-card h-100"><div class="card-body"><div class="text-muted small">Active Today</div><div class="h5 mb-0">{{ active_today_count }}</div></div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card metric-card h-100"><div class="card-body"><div class="text-muted small">Active Now</div><div class="h5 mb-0">{{ active_now_count }}</div></div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card metric-card h-100"><div class="card-body"><div class="text-muted small">Avg Usage</div><div class="h6 mb-0">{{ avg_usage_duration }}</div></div></div>
+  </div>
+  <div class="col-md-2">
+    <div class="card metric-card h-100"><div class="card-body"><div class="text-muted small">Total Activities</div><div class="h5 mb-0">{{ total_activities }}</div></div></div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th><a href="{{ sort_urls.user_email }}" class="text-decoration-none">Email</a></th>
+            <th>Phone Number</th>
+            <th><a href="{{ sort_urls.brand_name }}" class="text-decoration-none">Brand Name</a></th>
+            <th>Status</th>
+            <th><a href="{{ sort_urls.activity_count }}" class="text-decoration-none">Total Activities</a></th>
+            <th><a href="{{ sort_urls.top_option_count }}" class="text-decoration-none">Top Action</a></th>
+            <th><a href="{{ sort_urls.first_activity_at }}" class="text-decoration-none">First Activity</a></th>
+            <th><a href="{{ sort_urls.last_activity_at }}" class="text-decoration-none">Last Activity</a></th>
+            <th><a href="{{ sort_urls.usage_seconds }}" class="text-decoration-none">Usage Duration</a></th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in users_summary %}
+          <tr>
+            <td>{{ row.user_code }}</td>
+            <td>{{ row.user_email }}</td>
+            <td>{{ row.phone_number }}</td>
+            <td>{{ row.brand_name }}</td>
+            <td><span class="badge text-bg-{{ row.status_class }}">{{ row.status_key|title }}</span></td>
+            <td>{{ row.activity_count }}</td>
+            <td>
+              {{ row.top_option_used }}
+              <span class="text-muted small">({{ row.top_option_count }})</span>
+            </td>
+            <td>{{ row.first_activity_at }}</td>
+            <td>{{ row.last_activity_at }}</td>
+            <td title="{{ row.usage_duration_full }}">{{ row.usage_duration }}</td>
+            <td>
+              <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('main.users_data_activity', email=row.user_email, visit_id=row.member_visit_id) }}" class="btn btn-sm btn-outline-primary">Timeline</a>
+                <form method="post" action="{{ url_for('main.users_data_delete_user') }}" onsubmit="return confirm('Move this user activity to recycle bin? You can restore it.');">
+                  <input type="hidden" name="email" value="{{ row.user_email }}">
+                  <input type="hidden" name="visit_id" value="{{ row.member_visit_id }}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete User</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="11" class="text-center text-muted">No user upload logs found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-between align-items-center mt-3">
+  <div class="text-muted small">Page {{ page }} of {{ total_pages }}</div>
+  <div class="d-flex gap-2">
+    {% if prev_url %}
+      <a href="{{ prev_url }}" class="btn btn-sm btn-outline-secondary">Previous</a>
+    {% endif %}
+    {% if next_url %}
+      <a href="{{ next_url }}" class="btn btn-sm btn-outline-secondary">Next</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+
+
+

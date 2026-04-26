@@ -1,0 +1,786 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+    <style>
+        body {
+            background: linear-gradient(180deg, #d9ebf9 0%, #d7e8f6 100%);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+        }
+        .shell { max-width: 1320px; margin: 0 auto; padding: 24px 14px 44px; }
+        .glass-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+        .hero-card { padding: 20px 22px; }
+        .upload-panel { padding: 16px; }
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+        .control-strip {
+            border: 1px solid #d6e2ef;
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: #f8fbff;
+            margin-bottom: 12px;
+        }
+        .control-strip .form-select {
+            min-width: 150px;
+        }
+        .kpi-card {
+            border: 1px solid #d6e2ef;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 16px 18px;
+            min-height: 168px;
+            display: flex;
+            flex-direction: column;
+        }
+        .kpi-card.bottom-equal {
+            height: 236px;
+            overflow: hidden;
+        }
+        .kpi-label {
+            font-size: 11px;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: #5a7391;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .kpi-value {
+            font-size: clamp(1.55rem, 2vw, 2.15rem);
+            line-height: 1.12;
+            color: #001534;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .kpi-copy { color: #4b6480; font-size: 12px; margin-bottom: 0; }
+        .kpi-grid { row-gap: 16px; }
+        .ad-type-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .ad-type-name { color: #1f3a57; }
+        .ad-type-count { color: #1f3a57; }
+        .adtypes-select { margin-bottom: 8px !important; }
+        .adtypes-note { margin-bottom: 6px !important; }
+        .section-card { padding: 18px; }
+        .section-title { font-size: 36px; font-weight: 800; margin-bottom: 4px; }
+        .table-wrap {
+            border: 1px solid #d6e2ef;
+            border-radius: 12px;
+            overflow: auto;
+            max-height: 430px;
+            background: #fff;
+        }
+        .table-wrap .table {
+            min-width: 880px;
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background: #f5f9fd;
+            z-index: 2;
+        }
+        .table-wrap .table th,
+        .table-wrap .table td {
+            padding: 8px 10px;
+            border-right: 1px solid #cfd8e3;
+        }
+        .table-wrap .table th:last-child,
+        .table-wrap .table td:last-child {
+            border-right: 0;
+        }
+        .toolbar { color: #4b6480; font-size: 13px; }
+        .toolbar .form-select { min-width: 95px; }
+        .hero-logo { display: block; height: 40px; width: auto; }
+        .chart-card {
+            padding: 18px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .chart-title {
+            margin: 0;
+            font-size: 1.04rem;
+            font-weight: 800;
+            color: #001534;
+        }
+        .chart-copy {
+            margin: 4px 0 0;
+            color: #58708d;
+            font-size: 0.88rem;
+        }
+        .chart-box {
+            position: relative;
+            flex: 1;
+            min-height: 260px;
+        }
+        .chart-box.short {
+            min-height: 260px;
+        }
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+        @media (max-width: 991.98px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .upload-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .campaign-name-cell {
+            max-width: 320px;
+        }
+        .campaign-name-text {
+            display: inline-block;
+            max-width: 320px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-layout">
+    <aside class="side-nav">
+        <div class="side-brand">
+            <img src="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425" alt="InsightX">
+            <span>InsightX</span>
+        </div>
+        <div class="side-nav-links">
+            <a class="side-link" href="{{ url_for('main.home') }}"><i class="bi bi-house-fill"></i> Home</a>
+            <a class="side-link" href="{{ url_for('reports.ads_overview') }}"><i class="bi bi-grid-1x2-fill"></i> Ads Overview</a>
+            <a class="side-link active" href="{{ url_for('reports.campaign_performance_report') }}"><i class="bi bi-bar-chart-fill"></i> Campaign Report</a>
+            <a class="side-link" href="{{ url_for('reports.search_term_report') }}"><i class="bi bi-search"></i> Search Term Report</a>
+            <a class="side-link" href="{{ url_for('main.settings') }}"><i class="bi bi-gear-fill"></i> Settings</a>
+        </div>
+        <div class="side-help">
+            <h6>Need Help?</h6>
+            <p>Check guides or contact support if something looks off.</p>
+            <a class="btn btn-light btn-sm w-100 fw-semibold" href="mailto:connect.insightx@gmail.com">Contact Support</a>
+        </div>
+    </aside>
+
+    <main class="main-shell">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="burger-btn" type="button" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
+                <div class="text-secondary small fw-semibold">Workspace Dashboard</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary theme-toggle-btn" type="button" aria-label="Toggle theme">🌙</button>
+                <div class="topbar-user">
+                    <span class="topbar-avatar">{{ (display_name[:1] if display_name else (user.username[:1] if user and user.username else 'U'))|upper }}</span>
+                    <span>{{ display_name if display_name else (user.username if user else 'User') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-shell">
+    {% macro campaign_cell(name) -%}
+        {% set campaign = (name or '')|string %}
+        <td class="campaign-name-cell">
+            <span class="campaign-name-text" title="{{ campaign }}">
+                {% if campaign|length > 40 %}{{ campaign[:40] }}...{% else %}{{ campaign }}{% endif %}
+            </span>
+        </td>
+    {%- endmacro %}
+    <div class="glass-card hero-card mb-4">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+                <h1 class="section-title">Campaign Performance Report</h1>
+                <p class="mb-1 text-secondary">Campaign file based analysis.</p>
+                {% if saved_file_name %}
+                    <div class="small text-secondary">File: <strong>{{ saved_file_name }}</strong></div>
+                {% endif %}
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+            </div>
+        </div>
+    </div>
+
+    <div class="glass-card upload-panel mb-4">
+        <form method="post" enctype="multipart/form-data" class="upload-grid">
+            <input type="hidden" name="source_page" value="campaign_report">
+            <div>
+                <label class="form-label fw-semibold mb-1">Upload Campaign Report File</label>
+                <input type="file" name="campaign_file" class="form-control" accept=".csv,.xlsx,.xls" required>
+            </div>
+            <div>
+                <label class="form-label fw-semibold mb-1">Date Range</label>
+                <select class="form-select" name="campaign_range">
+                    <option value="7" {{ 'selected' if range_value == '7' else '' }}>Last 7 Days</option>
+                    <option value="14" {{ 'selected' if range_value == '14' else '' }}>Last 14 Days</option>
+                    <option value="30" {{ 'selected' if range_value == '30' else '' }}>Last 30 Days</option>
+                    <option value="60" {{ 'selected' if range_value == '60' else '' }}>Last 60 Days</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold">Upload And Analyze</button>
+            </div>
+        </form>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% if report_error %}
+        <div class="alert alert-danger">{{ report_error }}</div>
+    {% endif %}
+
+    <div class="row g-4 align-items-start">
+        <div class="col-12">
+            {% if show_results and campaign_report %}
+            <div class="control-strip d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="small text-secondary fw-semibold">Campaign Analysis Controls</div>
+                <form method="get" class="d-flex flex-wrap align-items-center gap-2 toolbar">
+                    <label class="mb-0">Ad Type</label>
+                    <select name="ad_type_scope" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="active" {{ 'selected' if ad_type_scope == 'active' else '' }}>Running Only</option>
+                        <option value="inactive" {{ 'selected' if ad_type_scope == 'inactive' else '' }}>Not Running Only</option>
+                        <option value="all" {{ 'selected' if ad_type_scope == 'all' else '' }}>All Campaigns</option>
+                    </select>
+                    <label class="mb-0">View Rows</label>
+                    <select name="table_limit" class="form-select form-select-sm" onchange="this.form.submit()">
+                        <option value="5" {{ 'selected' if table_limit == 5 else '' }}>5</option>
+                        <option value="10" {{ 'selected' if table_limit == 10 else '' }}>10</option>
+                        <option value="20" {{ 'selected' if table_limit == 20 else '' }}>20</option>
+                        <option value="50" {{ 'selected' if table_limit == 50 else '' }}>50</option>
+                        <option value="all" {{ 'selected' if table_limit == 0 else '' }}>All</option>
+                    </select>
+                </form>
+            </div>
+            <div class="row g-3 kpi-grid mb-3">
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value">{{ summary.roas }}</div><p class="kpi-copy">Calculated as total sales divided by total spend.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">Purchases</div><div class="kpi-value">{{ summary.purchases }}</div><p class="kpi-copy">Sum of purchase values from imported rows.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">Total Spend</div><div class="kpi-value">{{ summary.spend }}</div><p class="kpi-copy">Sum of spend across imported rows.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">Total Sales</div><div class="kpi-value">{{ summary.sales }}</div><p class="kpi-copy">Sum of sales across imported rows.</p></div></div>
+
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">Impressions</div><div class="kpi-value">{{ summary.impressions }}</div><p class="kpi-copy">Total impressions counted from imported rows.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">Clicks</div><div class="kpi-value">{{ summary.clicks }}</div><p class="kpi-copy">Total clicks counted from imported rows.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value">{{ summary.ctr }}%</div><p class="kpi-copy">Calculated as total clicks divided by total impressions.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card"><div class="kpi-label">ACOS</div><div class="kpi-value">{{ summary.acos }}%</div><p class="kpi-copy">Calculated as total spend divided by total sales.</p></div></div>
+
+                <div class="col-md-6 col-xl-3"><div class="kpi-card bottom-equal"><div class="kpi-label">Spend Wasted</div><div class="kpi-value">{{ summary.spend_leak }}</div><p class="kpi-copy">Spend from active rows where sales are zero.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card bottom-equal"><div class="kpi-label">High ACOS Spend %</div><div class="kpi-value">{{ summary.high_acos_spend_pct }}%</div><p class="kpi-copy">Share of spend from campaigns where ACOS is high.</p></div></div>
+                <div class="col-md-6 col-xl-3"><div class="kpi-card bottom-equal"><div class="kpi-label">Active Campaigns Without Portfolio</div><div class="kpi-value">{{ summary.active_without_portfolio_count }}</div><p class="kpi-copy">Active campaigns where portfolio is blank.</p></div></div>
+
+                <div class="col-md-6 col-xl-3">
+                    <div class="kpi-card bottom-equal">
+                        <div class="kpi-label">Types of Ads</div>
+                        <form method="get" class="adtypes-select">
+                            <input type="hidden" name="table_limit" value="{{ 'all' if table_limit == 0 else table_limit }}">
+                            <select name="ad_type_scope" class="form-select form-select-sm" onchange="this.form.submit()">
+                                <option value="active" {{ 'selected' if ad_type_scope == 'active' else '' }}>{{ ad_type_scope_label if ad_type_scope == 'active' else 'Running Only' }}</option>
+                                <option value="inactive" {{ 'selected' if ad_type_scope == 'inactive' else '' }}>Not Running Only</option>
+                                <option value="all" {{ 'selected' if ad_type_scope == 'all' else '' }}>All Campaigns</option>
+                            </select>
+                        </form>
+                        <div class="kpi-value">{{ ad_type_total }}</div>
+                        <p class="kpi-copy adtypes-note">
+                            Currently {{ 'Running' if ad_type_scope == 'active' else ('Not Running' if ad_type_scope == 'inactive' else 'Total') }} Campaigns
+                        </p>
+                        <div class="ad-type-row">
+                            <span class="ad-type-name" style="{{ 'color:#b91c1c;' if ad_type_counts.SP == 0 else 'color:#0f172a;' }}">SP</span>
+                            <span class="ad-type-count" style="{{ 'color:#b91c1c;' if ad_type_counts.SP == 0 else 'color:#0f172a;' }}">{{ ad_type_counts.SP }}</span>
+                        </div>
+                        <div class="ad-type-row">
+                            <span class="ad-type-name" style="{{ 'color:#b91c1c;' if ad_type_counts.SB == 0 else 'color:#0f172a;' }}">SB</span>
+                            <span class="ad-type-count" style="{{ 'color:#b91c1c;' if ad_type_counts.SB == 0 else 'color:#0f172a;' }}">{{ ad_type_counts.SB }}</span>
+                        </div>
+                        <div class="ad-type-row">
+                            <span class="ad-type-name" style="{{ 'color:#b91c1c;' if ad_type_counts.SBV == 0 else 'color:#0f172a;' }}">SBV</span>
+                            <span class="ad-type-count" style="{{ 'color:#b91c1c;' if ad_type_counts.SBV == 0 else 'color:#0f172a;' }}">{{ ad_type_counts.SBV }}</span>
+                        </div>
+                        <div class="ad-type-row mb-0">
+                            <span class="ad-type-name" style="{{ 'color:#b91c1c;' if ad_type_counts.SD == 0 else 'color:#0f172a;' }}">SD</span>
+                            <span class="ad-type-count" style="{{ 'color:#b91c1c;' if ad_type_counts.SD == 0 else 'color:#0f172a;' }}">{{ ad_type_counts.SD }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-grid mb-3">
+                <div class="glass-card chart-card">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Campaign Spend vs Sales</h4>
+                            <p class="chart-copy">Top campaigns by sales with spend comparison.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="campaignSpendSalesChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card chart-card">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">ACOS Leaders</h4>
+                            <p class="chart-copy">Highest ACOS campaigns in the current view.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="campaignAcosChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card chart-card">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Top ROAS Campaigns</h4>
+                            <p class="chart-copy">Campaigns with the strongest return on ad spend.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="campaignRoasChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-card chart-card">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Spend Share</h4>
+                            <p class="chart-copy">How top spend is concentrated across campaigns.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="campaignSpendShareChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {% set sales_rows = campaign_report.top_by_sales if table_limit == 0 else campaign_report.top_by_sales[:table_limit] %}
+            {% set spend_rows = campaign_report.top_by_spend if table_limit == 0 else campaign_report.top_by_spend[:table_limit] %}
+            {% set top_acos_rows = campaign_report.top_by_acos if table_limit == 0 else campaign_report.top_by_acos[:table_limit] %}
+            {% set low_acos_rows = campaign_report.low_by_acos if table_limit == 0 else campaign_report.low_by_acos[:table_limit] %}
+            {% set top_roas_rows = campaign_report.top_by_roas if table_limit == 0 else campaign_report.top_by_roas[:table_limit] %}
+            {% set low_roas_rows = campaign_report.low_by_roas if table_limit == 0 else campaign_report.low_by_roas[:table_limit] %}
+            {% set top_purchase_rows = campaign_report.top_by_purchases if table_limit == 0 else campaign_report.top_by_purchases[:table_limit] %}
+            {% set low_purchase_rows = campaign_report.low_by_purchases if table_limit == 0 else campaign_report.low_by_purchases[:table_limit] %}
+            {% set no_portfolio_rows = campaign_report.active_without_portfolio if table_limit == 0 else campaign_report.active_without_portfolio[:table_limit] %}
+            {% set preview_rows = campaign_report.campaign_preview if table_limit == 0 else campaign_report.campaign_preview[:table_limit] %}
+
+            <div class="row g-3">
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">Top Campaigns By Sales</h4>
+                            <span class="toolbar">Rows: {{ 'All' if table_limit == 0 else table_limit }}</span>
+                        </div>
+                        <p class="text-secondary small mb-2">Campaigns are ranked by total sales in descending order, with ACOS as supporting metric.</p>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+                                <tbody>
+                                    {% for row in sales_rows %}
+                                    <tr>
+                                        {{ campaign_cell(row.campaign_name) }}
+                                        <td>{{ row.spend }}</td>
+                                        <td>{{ row.sales }}</td>
+                                        <td>{{ row.acos }}%</td>
+                                        
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">Top Campaigns By Spend</h4>
+                            <span class="toolbar">Rows: {{ 'All' if table_limit == 0 else table_limit }}</span>
+                        </div>
+                        <p class="text-secondary small mb-2">Campaigns are ranked by total spend in descending order, with clicks and CTR as supporting metrics.</p>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Clicks</th><th>CTR</th></tr></thead>
+                                <tbody>
+                                    {% for row in spend_rows %}
+                                    <tr>
+                                        {{ campaign_cell(row.campaign_name) }}
+                                        <td>{{ row.spend }}</td>
+                                        <td>{{ row.clicks }}</td>
+                                        <td>{{ row.ctr }}%</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Top Campaigns By ACOS</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+                                <tbody>
+                                    {% for row in top_acos_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.spend }}</td><td>{{ row.sales }}</td><td>{{ row.acos }}%</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Low Campaigns By ACOS</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+                                <tbody>
+                                    {% for row in low_acos_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.spend }}</td><td>{{ row.sales }}</td><td>{{ row.acos }}%</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Top Campaigns By ROAS</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Sales</th><th>ROAS</th></tr></thead>
+                                <tbody>
+                                    {% for row in top_roas_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.spend }}</td><td>{{ row.sales }}</td><td>{{ row.roas }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Low Campaigns By ROAS</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Spend</th><th>Sales</th><th>ROAS</th></tr></thead>
+                                <tbody>
+                                    {% for row in low_roas_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.spend }}</td><td>{{ row.sales }}</td><td>{{ row.roas }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Top Campaigns By Purchases</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Purchases</th><th>Spend</th><th>Sales</th></tr></thead>
+                                <tbody>
+                                    {% for row in top_purchase_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.purchases }}</td><td>{{ row.spend }}</td><td>{{ row.sales }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Low Campaigns By Purchases</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Purchases</th><th>Spend</th><th>Sales</th></tr></thead>
+                                <tbody>
+                                    {% for row in low_purchase_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.purchases }}</td><td>{{ row.spend }}</td><td>{{ row.sales }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-1">
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Active Campaigns Without Portfolio</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>State</th><th>Status</th><th>Spend</th><th>Sales</th></tr></thead>
+                                <tbody>
+                                    {% for row in no_portfolio_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.state }}</td><td>{{ row.status }}</td><td>{{ row.spend }}</td><td>{{ row.sales }}</td></tr>
+                                    {% endfor %}
+                                    {% if no_portfolio_rows|length == 0 %}
+                                    <tr>
+                                        <td colspan="5" class="text-center text-secondary py-4 fw-semibold">NO Active Campaigns Without Portfolio</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6">
+                    <div class="glass-card section-card h-100">
+                        <h4 class="mb-2">Campaign Preview</h4>
+                        <div class="table-wrap">
+                            <table class="table table-sm mb-0 align-middle">
+                                <thead><tr><th>Campaign</th><th>Type</th><th>Spend</th><th>Sales</th><th>ACOS</th><th>ROAS</th></tr></thead>
+                                <tbody>
+                                    {% for row in preview_rows %}
+                                    <tr>{{ campaign_cell(row.campaign_name) }}<td>{{ row.campaign_type }}</td><td>{{ row.spend }}</td><td>{{ row.sales }}</td><td>{{ row.acos }}%</td><td>{{ row.roas }}</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+                <div class="glass-card section-card">
+                    <h4 class="mb-2">No Campaign Data Yet</h4>
+                    <p class="text-secondary mb-0">Upar file upload karte hi yahin niche saare campaign KPIs, charts, aur tables auto show ho jayenge.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% if show_results and campaign_report %}
+<script>
+(() => {
+    const salesRows = [
+        {% for row in sales_rows[:6] %}
+        { label: {{ row.campaign_name|tojson }}, sales: {{ row.sales or 0 }}, spend: {{ row.spend or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const spendRows = [
+        {% for row in spend_rows[:6] %}
+        { label: {{ row.campaign_name|tojson }}, spend: {{ row.spend or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const acosRows = [
+        {% for row in top_acos_rows[:6] %}
+        { label: {{ row.campaign_name|tojson }}, acos: {{ row.acos or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const roasRows = [
+        {% for row in top_roas_rows[:6] %}
+        { label: {{ row.campaign_name|tojson }}, roas: {{ row.roas or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const palette = ['#2563eb', '#06b6d4', '#8b5cf6', '#f97316', '#10b981', '#ef4444'];
+    const gridColor = 'rgba(15, 23, 42, 0.08)';
+
+    function makeGradient(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.92)');
+        gradient.addColorStop(1, 'rgba(96, 165, 250, 0.15)');
+        return gradient;
+    }
+
+    function shortLabel(text, maxLen = 28) {
+        const value = String(text || '');
+        return value.length > maxLen ? `${value.slice(0, maxLen - 1)}…` : value;
+    }
+
+    const spendSalesCanvas = document.getElementById('campaignSpendSalesChart');
+    if (spendSalesCanvas && salesRows.length && window.Chart) {
+        const ctx = spendSalesCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: salesRows.map((item) => shortLabel(item.label, 24)),
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: salesRows.map((item) => item.sales),
+                        backgroundColor: makeGradient(ctx),
+                        borderColor: '#2563eb',
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 28,
+                    },
+                    {
+                        label: 'Spend',
+                        data: salesRows.map((item) => item.spend),
+                        backgroundColor: 'rgba(14, 165, 233, 0.20)',
+                        borderColor: '#0ea5e9',
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 28,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, useBorderRadius: true } },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => salesRows[items[0].dataIndex]?.label || items[0].label,
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#56708f', autoSkip: false, maxRotation: 18, minRotation: 18 }
+                    },
+                    y: { grid: { color: gridColor }, ticks: { color: '#56708f' } }
+                }
+            }
+        });
+    }
+
+    const acosCanvas = document.getElementById('campaignAcosChart');
+    if (acosCanvas && acosRows.length && window.Chart) {
+        const ctx = acosCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: acosRows.map((item) => item.label),
+                datasets: [{
+                    label: 'ACOS %',
+                    data: acosRows.map((item) => item.acos),
+                    backgroundColor: acosRows.map((_, idx) => palette[idx % palette.length]),
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    maxBarThickness: 24,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: '#56708f' } },
+                    y: { grid: { display: false }, ticks: { color: '#56708f' } }
+                }
+            }
+        });
+    }
+
+    const roasCanvas = document.getElementById('campaignRoasChart');
+    if (roasCanvas && roasRows.length && window.Chart) {
+        const ctx = roasCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: roasRows.map((item) => shortLabel(item.label, 24)),
+                datasets: [{
+                    label: 'ROAS',
+                    data: roasRows.map((item) => item.roas),
+                    backgroundColor: roasRows.map((_, idx) => palette[(idx + 1) % palette.length]),
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    maxBarThickness: 28,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => roasRows[items[0].dataIndex]?.label || items[0].label,
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { display: false }, ticks: { color: '#56708f', autoSkip: false, maxRotation: 18, minRotation: 18 } },
+                    y: { grid: { color: gridColor }, ticks: { color: '#56708f' } }
+                }
+            }
+        });
+    }
+
+    const spendShareCanvas = document.getElementById('campaignSpendShareChart');
+    if (spendShareCanvas && spendRows.length && window.Chart) {
+        const ctx = spendShareCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: spendRows.map((item) => item.label),
+                datasets: [{
+                    data: spendRows.map((item) => item.spend),
+                    backgroundColor: palette,
+                    borderWidth: 0,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 10, boxHeight: 10 } }
+                }
+            }
+        });
+    }
+})();
+</script>
+{% endif %}
+</div>
+</main>
+</div>
+</body>
+</html>
+
+
+
+

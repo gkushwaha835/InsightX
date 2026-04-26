@@ -1,0 +1,190 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Heatmap Analysis</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, rgba(249, 115, 22, 0.14), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.16), transparent 32%),
+                linear-gradient(135deg, #fffaf5 0%, #f8fbff 46%, #f8fafc 100%);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .page-shell { display: grid; gap: 24px; }
+        .hero-card, .panel-card {
+            border: 0;
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 24px 56px rgba(15, 23, 42, 0.10);
+        }
+        .hero-card { padding: 34px; }
+        .hero-tag {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #fff;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        .hero-title { margin-top: 18px; margin-bottom: 12px; font-size: 40px; line-height: 1.08; font-weight: 700; color: #0f172a; }
+        .hero-copy, .panel-copy { color: #64748b; }
+        .panel-card .card-body { padding: 28px; }
+        .panel-title { font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+        .heatmap-table { border-collapse: separate; border-spacing: 10px; width: 100%; }
+        .heatmap-table th { font-size: 0.82rem; color: #1e293b; font-weight: 700; padding: 6px 8px; }
+        .heatmap-table td {
+            min-width: 92px;
+            text-align: center;
+            padding: 12px 10px;
+            border-radius: 16px;
+            font-weight: 700;
+            color: #0b1220;
+            box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.08);
+        }
+        .heatmap-label { background: #e2e8f0; text-align: left !important; min-width: 190px !important; }
+        .tone-na { background: #cbd5e1; color: #334155; }
+        .tone-low { background: rgba(34, 197, 94, 0.40); }
+        .tone-mid { background: rgba(250, 129, 40, 0.38); }
+        .tone-high { background: rgba(210, 64, 64, 0.40); }
+        .legend { display: flex; flex-wrap: wrap; gap: 12px; }
+        .legend-item { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: #334155; }
+        .legend-dot { width: 14px; height: 14px; border-radius: 999px; display: inline-block; border: 1px solid rgba(15,23,42,.16); }
+    </style>
+</head>
+<body>
+<button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary position-fixed top-0 end-0 m-3" style="z-index:1100;">🌙</button>
+  <div class="container py-4">
+    <div class="page-shell">
+        <div class="hero-card">
+            <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+                <div>
+                    <span class="hero-tag">Heatmap Workspace</span>
+                    <h1 class="hero-title">{{ metric_title }} for {{ 'SKU Wise' if params.dimension == 'sku' else ('ASIN Wise' if params.dimension == 'asin' else 'Category Wise') }}</h1>
+                    <p class="hero-copy mb-0">This dedicated heatmap workspace uses only the selected comparison months so color concentration stays focused.</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{{ url_for('reports.dashboard', analyze=1) }}" class="btn btn-outline-dark">Back To Dashboard</a>
+                    <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">Home</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="card panel-card">
+            <div class="card-body">
+                <div class="panel-title">Heatmap Controls</div>
+                <p class="panel-copy">This page has its own comparison controls so heatmap analysis can be adjusted without affecting dashboard output.</p>
+                <form method="get" class="row g-3 align-items-end">
+                    <input type="hidden" name="analyze" value="1">
+                    <div class="col-md-2">
+                        <label class="form-label">Analysis Type</label>
+                        <select name="type" class="form-control">
+                            <option value="sku" {{ 'selected' if params.dimension == 'sku' else '' }}>SKU Wise</option>
+                            <option value="asin" {{ 'selected' if params.dimension == 'asin' else '' }}>ASIN Wise</option>
+                            <option value="category" {{ 'selected' if params.dimension == 'category' else '' }}>Category Wise</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Heatmap Metric</label>
+                        <select name="metric" class="form-control">
+                            <option value="acos" {{ 'selected' if metric == 'acos' else '' }}>ACOS</option>
+                            <option value="tacos" {{ 'selected' if metric == 'tacos' else '' }}>TACOS</option>
+                            <option value="ctr" {{ 'selected' if metric == 'ctr' else '' }}>CTR</option>
+                            <option value="conversion_rate" {{ 'selected' if metric == 'conversion_rate' else '' }}>Conversion Rate</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Compare Months</label>
+                        <select name="month_count" class="form-control">
+                            {% for count in [2,3,4,5,6] %}
+                                <option value="{{ count }}" {{ 'selected' if params.month_count == count else '' }}>{{ count }} Months</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Show Rows</label>
+                        <select name="row_limit" class="form-control">
+                            {% for limit in [12,25,50,100,0] %}
+                                <option value="{{ limit }}" {{ 'selected' if row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">All Zero Rows</label>
+                        <select name="hide_all_zero" class="form-control">
+                            <option value="1" {{ 'selected' if hide_all_zero_rows else '' }}>Hide</option>
+                            <option value="0" {{ 'selected' if not hide_all_zero_rows else '' }}>Show</option>
+                        </select>
+                    </div>
+                    {% for idx in range(params.selected_months|length) %}
+                    <div class="col-md-2">
+                        <label class="form-label">Month {{ idx + 1 }}</label>
+                        <select name="selected_months" class="form-control">
+                            {% for month in months_available %}
+                                <option value="{{ month }}" {{ 'selected' if params.selected_months[idx] == month else '' }}>{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}
+                    <div class="col-md-2">
+                        <button class="btn btn-dark w-100">Apply Heatmap</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="card panel-card">
+            <div class="card-body">
+                <div class="panel-title">Heatmap Matrix</div>
+                <p class="panel-copy mb-2">Selected months: {{ heatmap_months|join(', ') }} | Showing {{ heatmap_rows|length }} of {{ heatmap_total_rows }} rows.</p>
+
+                <div class="table-responsive">
+                    <table class="heatmap-table">
+                        <thead>
+                        <tr>
+                            <th>{{ entity_label }}</th>
+                            {% for month in heatmap_months %}<th>{{ month }}</th>{% endfor %}
+                            <th>Average</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for row in heatmap_rows %}
+                            <tr>
+                                <td class="heatmap-label">{{ row.entity }}</td>
+                                {% for month in heatmap_months %}
+                                    <td class="{{ row.tone_by_month[month] }}">{{ row.display_by_month[month] }}</td>
+                                {% endfor %}
+                                <td class="{{ row.avg_tone }}">{{ row.avg_display }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="{{ 2 + (heatmap_months|length) }}" class="text-center text-muted">No heatmap rows found for selected filters.</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="legend mt-3">
+                    <span class="legend-item"><span class="legend-dot tone-low"></span>Good</span>
+                    <span class="legend-item"><span class="legend-dot tone-mid"></span>Watch</span>
+                    <span class="legend-item"><span class="legend-dot tone-high"></span>High Risk</span>
+                    <span class="legend-item"><span class="legend-dot tone-na"></span>N/A</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+

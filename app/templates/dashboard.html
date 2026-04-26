@@ -1,0 +1,534 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+:root {
+    --performer-top: #198754;
+    --performer-mid: #fa8128;
+    --performer-bottom: #d24040;
+    --performer-fluctuate: #2563eb;
+    --performer-na-bg: #e5e7eb;
+    --performer-na-text: #374151;
+}
+body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.18), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.16), transparent 28%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 45%, #f0f9ff 100%);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.dashboard-shell { display: grid; gap: 22px; }
+.dashboard-hero, .section-card, .kpi-card {
+    border: 0;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10);
+}
+.page-kicker {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: #0f172a;
+    color: #fff;
+}
+.toolbar-row { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.hero-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    padding: 0 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+.toolbar-title { margin-top: 12px; margin-bottom: 6px; font-size: 34px; font-weight: 800; }
+.toolbar-subtitle { color:#64748b; }
+.kpi-card .card-body { padding: 22px; }
+.kpi-label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: #64748b; }
+.kpi-value { font-size: 30px; font-weight: 800; color:#0f172a; }
+.section-card .card-body { padding: 22px; }
+.section-title { font-size: 1.15rem; font-weight: 700; color:#0f172a; margin-bottom: 8px; }
+.section-copy { color:#64748b; margin-bottom: 14px; }
+.chart-host { width: 100%; height: 320px; }
+.performer-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 148px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-align: center;
+    border: 1px solid transparent;
+}
+.performer-tooltip-wrap {
+    position: relative;
+    display: inline-block;
+}
+.performer-tooltip-wrap .performer-badge {
+    cursor: pointer;
+}
+.performer-tooltip-wrap [data-tooltip-trigger="1"] {
+    cursor: pointer;
+}
+.performer-detail-tooltip {
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    min-width: 260px;
+    max-width: 360px;
+    background: #0f172a;
+    color: #e2e8f0;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.35);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    z-index: 40;
+    display: none;
+}
+.performer-tooltip-wrap:hover .performer-detail-tooltip {
+    display: block;
+}
+.performer-tooltip-wrap.tooltip-open .performer-detail-tooltip {
+    display: block;
+}
+.performer-detail-title {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #cbd5e1;
+}
+.performer-detail-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    font-size: 12px;
+    padding: 2px 0;
+}
+.performer-top { background: rgba(25, 135, 84, 0.12); color: var(--performer-top); border-color: rgba(25, 135, 84, 0.26); }
+.performer-mid { background: rgba(250, 129, 40, 0.12); color: var(--performer-mid); border-color: rgba(250, 129, 40, 0.26); }
+.performer-bottom { background: rgba(210, 64, 64, 0.12); color: var(--performer-bottom); border-color: rgba(210, 64, 64, 0.26); }
+.performer-fluctuate { background: rgba(37, 99, 235, 0.12); color: var(--performer-fluctuate); border-color: rgba(37, 99, 235, 0.26); }
+.performer-na { background: var(--performer-na-bg); color: var(--performer-na-text); }
+.performer-filter-group { display:flex; flex-wrap:wrap; gap:10px 14px; padding:12px 14px; border:1px solid #dbe2ea; border-radius:14px; background:#fbfdff; }
+.performer-filter-option { display:inline-flex; align-items:center; gap:8px; font-size:.92rem; color:#1f2937; background:#fff; border:1px solid #e5e7eb; border-radius:999px; padding:8px 12px; }
+.table-wrap { overflow-x: auto; }
+.watchlist-scroll {
+    max-height: 300px;
+    overflow: auto;
+    border-radius: 10px;
+}
+.watchlist-card {
+    overflow: hidden;
+}
+.watchlist-scroll .table {
+    margin-bottom: 0;
+}
+.section-toolbar { display:flex; align-items:end; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.section-limit-form { min-width: 170px; }
+</style>
+</head>
+<body>
+<div class="container py-4">
+<div class="dashboard-shell">
+    <div class="card p-4 shadow dashboard-hero">
+        <div class="toolbar-row">
+            <div>
+                <h3 class="toolbar-title">InsightX</h3>
+                <p class="toolbar-subtitle mb-0">Set your filters and click Analyze to load comparison insights.</p>
+            </div>
+            <div class="hero-actions">
+                <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary hero-action-btn">Home</a>
+            </div>
+        </div>
+        
+        <hr>
+
+        <form method="GET">
+            <input type="hidden" name="analyze" value="{{ '1' if params.show_results else '0' }}">
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label class="form-label">Analysis Type</label>
+                    <input type="text" class="form-control" value="ASIN Wise" readonly>
+                    <input type="hidden" name="type" value="asin">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Search ASIN</label>
+                    <input type="text" name="sku_search" value="{{ params.sku_search }}" class="form-control" placeholder="Search">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Sales Basis</label>
+                    <select name="sales_basis" class="form-control">
+                        <option value="ads" {{ 'selected' if params.sales_basis == 'ads' else '' }}>Ads Sales</option>
+                        <option value="total" {{ 'selected' if params.sales_basis == 'total' else '' }}>Total Sales</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Top Performer</label>
+                    <div class="input-group"><span class="input-group-text">ACOS Under</span><input type="number" step="0.01" min="0" name="top_threshold" value="{{ params.thresholds.top }}" class="form-control"></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Mid Performer Min</label>
+                    <div class="input-group"><span class="input-group-text">ACOS</span><input type="number" step="0.01" min="0" name="mid_min_threshold" value="{{ params.thresholds.mid_min }}" class="form-control"></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Mid Performer Max</label>
+                    <div class="input-group"><span class="input-group-text">Between</span><input type="number" step="0.01" min="0" name="mid_max_threshold" value="{{ params.thresholds.mid_max }}" class="form-control"></div>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Bottom Performer</label>
+                    <div class="input-group"><span class="input-group-text">ACOS Above</span><input type="number" step="0.01" min="0" name="bottom_threshold" value="{{ params.thresholds.bottom }}" class="form-control"></div>
+                </div>
+
+                {% for month in params.selected_months %}
+                    <input type="hidden" name="{{ period_field_name if period_field_name is defined else 'selected_months' }}" value="{{ month }}">
+                {% endfor %}
+
+            </div>
+            <br>
+            <button class="btn btn-primary" name="analyze" value="1">Analyze</button>
+        </form>
+    </div>
+
+    {% if not params.show_results %}
+      <div class="alert alert-info mb-0">Select filters and click <strong>Analyze</strong> to load comparison data.</div>
+    {% else %}
+    <div class="row g-4">
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Total Spend</div><div class="kpi-value">{{ '%.2f'|format(overview.total_spend) }}</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Total Ads Sales</div><div class="kpi-value">{{ '%.2f'|format(overview.ads_sales) }}</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Average ACOS</div><div class="kpi-value">{{ '%.2f'|format(overview.acos) }}%</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Average TACOS</div><div class="kpi-value">{{ '%.2f'|format(overview.tacos) }}%</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Total Units</div><div class="kpi-value">{{ overview.total_units }}</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Total Sales</div><div class="kpi-value">{{ '%.2f'|format(overview.total_sales) }}</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Conversion Rate</div><div class="kpi-value">{{ '%.2f'|format(overview.conversion_rate) }}%</div></div></div></div>
+        <div class="col-md-3"><div class="card kpi-card"><div class="card-body"><div class="kpi-label">Click Through Rate (CTR)</div><div class="kpi-value">{{ '%.2f'|format(overview.ctr) }}%</div></div></div></div>
+    </div>
+
+    <div class="row g-4" id="performance-charts">
+        <div class="col-lg-6"><div class="card section-card chart-card"><div class="card-body"><div class="section-title">Spend vs Sales by Month</div><p class="section-copy">Track how media spend compares with sales across selected months.</p><div id="spendSalesChart" class="chart-host"></div></div></div></div>
+        <div class="col-lg-6"><div class="card section-card chart-card"><div class="card-body"><div class="section-title">Spend Share by Ad Type (SP/SB/SBV/SD)</div><p class="section-copy">See how ad spend is distributed across Sponsored Product, Sponsored Brand, Sponsored Brand Video, and Sponsored Display.</p><div id="adTypeShareChart" class="chart-host"></div></div></div></div>
+        <div class="col-lg-6">
+            <div class="card section-card h-100 watchlist-card">
+                <div class="card-body">
+                    <div class="section-toolbar">
+                        <div>
+                            <div class="section-title mb-1">Critical ASIN Watchlist</div>
+                            <p class="section-copy mb-0">Immediate attention rows based on spend, ACOS, CTR, conversion, and trend.</p>
+                        </div>
+                        <form method="get" class="section-limit-form">
+                            {% for key, values in request.args.lists() %}
+                                {% if key not in ['watchlist_row_limit', 'scroll_to', 'export'] %}
+                                    {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            <input type="hidden" name="scroll_to" value="performance-charts">
+                            <label class="form-label small mb-1">Show Rows</label>
+                            <select name="watchlist_row_limit" class="form-select form-select-sm" onchange="this.form.submit()">
+                                {% for limit in [5,10,15,20,0] %}
+                                    <option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if params.watchlist_row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                    <p class="text-muted small mb-3">Showing {{ critical_watchlist|length }} of {{ watchlist_total }} rows.</p>
+                    <div class="table-wrap watchlist-scroll">
+                        <table class="table table-bordered align-middle mb-0 watchlist-table">
+                            <thead>
+                            <tr>
+                                <th>Entity</th>
+                                <th>Performer</th>
+                                <th>Issue</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in critical_watchlist %}
+                                <tr>
+                                    <td>{{ item.label }}</td>
+                                    <td>
+                                        <span class="performer-tooltip-wrap">
+                                            {% if item.status == 'Bottom Performer' %}
+                                                <span class="watchlist-chip watchlist-chip-danger" data-tooltip-trigger="1">{{ item.status }}</span>
+                                            {% else %}
+                                                <span class="watchlist-chip watchlist-chip-warning" data-tooltip-trigger="1">{{ item.status }}</span>
+                                            {% endif %}
+                                            <span class="performer-detail-tooltip">
+                                                <div class="performer-detail-title">Critical Metrics Snapshot</div>
+                                                <span class="performer-detail-row"><span>Spend</span><span>{{ '%.2f'|format(item.spend or 0) }}</span></span>
+                                                <span class="performer-detail-row"><span>Ads Sales</span><span>{{ '%.2f'|format(item.ads_sales or 0) }}</span></span>
+                                                <span class="performer-detail-row"><span>Total Sales</span><span>{{ '%.2f'|format(item.total_sales or 0) }}</span></span>
+                                                <span class="performer-detail-row"><span>ACOS</span><span>{{ '%.2f'|format(item.acos or 0) }}%</span></span>
+                                                <span class="performer-detail-row"><span>CTR</span><span>{{ '%.2f'|format(item.ctr or 0) }}%</span></span>
+                                                <span class="performer-detail-row"><span>Conversion</span><span>{{ '%.2f'|format(item.conversion_rate or 0) }}%</span></span>
+                                            </span>
+                                        </span>
+                                    </td>
+                                    <td>{{ item.issue }}</td>
+                                    <td>{{ item.action }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="4" class="text-center text-muted">No critical ASIN watchlist rows for current filters.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card section-card chart-card h-100">
+                <div class="card-body">
+                    <div class="section-title">Top 10 ASINs by Ads Sales</div>
+                    <p class="section-copy">Quickly identify the strongest ads sales drivers in the selected comparison {{ (period_plural if period_plural is defined else 'months')|lower }}.</p>
+                    <div id="topSkuAdsSalesChart" class="chart-host"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4" id="performer-sections">
+        <div class="col-lg-6"><div class="card section-card h-100"><div class="card-body"><div class="section-toolbar"><div><div class="section-title mb-1">Top Performing Entities</div><p class="section-copy mb-0">Best performers by selected efficiency rules.</p></div><form method="get" class="section-limit-form">{% for key, values in request.args.lists() %}{% if key not in ['top_performer_row_limit', 'scroll_to', 'export'] %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}<input type="hidden" name="scroll_to" value="performer-sections"><label class="form-label small mb-1">Show Rows</label><select name="top_performer_row_limit" class="form-select form-select-sm" onchange="this.form.submit()">{% for limit in [5,10,15,20,0] %}<option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if params.top_performer_row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>{% endfor %}</select></form></div><p class="text-muted small mb-3">Showing {{ top_performers|length }} of {{ top_total }} rows.</p><div class="table-wrap"><table class="table table-bordered align-middle mb-0"><thead><tr><th>Entity</th><th>Total Spend</th><th>Sales</th><th>ACOS</th></tr></thead><tbody>{% for row in top_performers %}<tr><td>{{ row.label }}</td><td>{{ '%.2f'|format(row.spend) }}</td><td>{{ '%.2f'|format(row.ads_sales if params.sales_basis == 'ads' else row.total_sales) }}</td><td>{{ '%.2f'|format(row.efficiency) }}%</td></tr>{% else %}<tr><td colspan="4" class="text-center text-muted">No top performer data available.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+        <div class="col-lg-6"><div class="card section-card h-100"><div class="card-body"><div class="section-toolbar"><div><div class="section-title mb-1">Worst Performing Entities</div><p class="section-copy mb-0">Needs immediate optimization focus.</p></div><form method="get" class="section-limit-form">{% for key, values in request.args.lists() %}{% if key not in ['worst_performer_row_limit', 'scroll_to', 'export'] %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}<input type="hidden" name="scroll_to" value="performer-sections"><label class="form-label small mb-1">Show Rows</label><select name="worst_performer_row_limit" class="form-select form-select-sm" onchange="this.form.submit()">{% for limit in [5,10,15,20,0] %}<option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if params.worst_performer_row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>{% endfor %}</select></form></div><p class="text-muted small mb-3">Showing {{ worst_performers|length }} of {{ worst_total }} rows.</p><div class="table-wrap"><table class="table table-bordered align-middle mb-0"><thead><tr><th>Entity</th><th>Total Spend</th><th>Sales</th><th>ACOS</th></tr></thead><tbody>{% for row in worst_performers %}<tr><td>{{ row.label }}</td><td>{{ '%.2f'|format(row.spend) }}</td><td>{{ '%.2f'|format(row.ads_sales if params.sales_basis == 'ads' else row.total_sales) }}</td><td>{{ '%.2f'|format(row.efficiency) }}%</td></tr>{% else %}<tr><td colspan="4" class="text-center text-muted">No worst performer data available.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+    </div>
+    <div class="row g-4" id="opportunity-finder">
+        <div class="col-lg-12"><div class="card section-card h-100"><div class="card-body"><div class="section-toolbar"><div><div class="section-title mb-1">Opportunity Finder - Entity Wise</div><p class="section-copy mb-0">Tracks rows where action can improve performance quickly.</p></div><form method="get" class="section-limit-form">{% for key, values in request.args.lists() %}{% if key not in ['opportunity_row_limit', 'scroll_to', 'export'] %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}<input type="hidden" name="scroll_to" value="opportunity-finder"><label class="form-label small mb-1">Show Rows</label><select name="opportunity_row_limit" class="form-select form-select-sm" onchange="this.form.submit()">{% for limit in [5,10,15,20,0] %}<option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if params.opportunity_row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>{% endfor %}</select></form></div><p class="text-muted small mb-3">Showing {{ opportunities|length }} of {{ opportunities_total }} rows.</p><div class="table-wrap"><table class="table table-bordered align-middle mb-0"><thead><tr><th>Entity</th><th>Issue</th><th>Metric Basis</th><th>Recommendation</th></tr></thead><tbody>{% for o in opportunities %}<tr><td>{{ o.label }}</td><td>{{ 'Low CTR' if o.ctr < 0.5 else ('Low Conversion' if o.conversion_rate < 3 else 'Watch') }}</td><td>Spend: {{ '%.2f'|format(o.spend) }}, CTR: {{ '%.2f'|format(o.ctr) }}%, Conv: {{ '%.2f'|format(o.conversion_rate) }}%</td><td>{{ o.recommendation }}</td></tr>{% else %}<tr><td colspan="4" class="text-center text-muted">No opportunities matched the current rules.</td></tr>{% endfor %}</tbody></table></div></div></div></div>
+    </div>
+
+    <div class="card mt-4 p-4 shadow" id="analysis-results">
+        <h4>Analysis Results</h4>
+        <p class="text-muted">Comparing {{ params.selected_months|join(', ') }}. Average ACOS is calculated across selected {{ (period_plural if period_plural is defined else 'months')|lower }}.</p>
+        <p class="text-muted small">Showing {{ analysis_rows|length }} of {{ analysis_total }} rows.</p>
+        <form method="get" class="mb-3">
+            {% for key, values in request.args.lists() %}
+                {% if key not in ['status_filter', 'scroll_to', 'export'] %}
+                    {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                {% endif %}
+            {% endfor %}
+            <input type="hidden" name="scroll_to" value="analysis-results">
+            <input type="hidden" name="analyze" value="1">
+            <label class="form-label">Performer Filter</label>
+            <div class="performer-filter-group mb-2">
+                {% set selected = params.status_filter %}
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="all" {{ 'checked' if 'all' in selected else '' }}><span>All Performers</span></label>
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="top" {{ 'checked' if 'top' in selected else '' }}><span>Top Performer</span></label>
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="mid" {{ 'checked' if 'mid' in selected else '' }}><span>Mid Performer</span></label>
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="bottom" {{ 'checked' if 'bottom' in selected else '' }}><span>Bottom Performer</span></label>
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="fluctuate" {{ 'checked' if 'fluctuate' in selected else '' }}><span>Fluctuate</span></label>
+                <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="na" {{ 'checked' if 'na' in selected else '' }}><span>Not Applicable</span></label>
+            </div>
+            <button class="btn btn-outline-primary btn-sm">Apply Performer Filter</button>
+        </form>
+        <div class="mb-3 d-flex gap-2 flex-wrap align-items-end">
+            <form method="get" class="section-limit-form">
+                {% for key, values in request.args.lists() %}
+                    {% if key not in ['analysis_row_limit', 'scroll_to', 'export'] %}
+                        {% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}
+                    {% endif %}
+                {% endfor %}
+                <input type="hidden" name="scroll_to" value="analysis-results">
+                <label class="form-label small mb-1">Show Rows</label>
+                <select name="analysis_row_limit" class="form-select form-select-sm" onchange="this.form.submit()">
+                    {% for limit in [5,10,15,20,0] %}
+                        <option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if params.analysis_row_limit == limit else '' }}>{{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+            <form method="get">{% for key, values in request.args.lists() %}{% if key != 'export' %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}<input type="hidden" name="export" value="excel"><button class="btn btn-success btn-sm">Export Excel</button></form>
+            <form method="get" target="_blank">{% for key, values in request.args.lists() %}{% if key != 'export' %}{% for value in values %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endfor %}{% endif %}{% endfor %}<input type="hidden" name="export" value="pdf"><button class="btn btn-outline-secondary btn-sm">Export PDF</button></form>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered mt-3">
+                <thead><tr><th>Entity</th><th>Spend</th><th>Ads Sales</th><th>Total Sales</th><th>Average ACOS</th><th>Performer</th><th>Recommendation</th></tr></thead>
+                <tbody>
+                {% for row in analysis_rows %}
+                    {% set status = row.status %}
+                    <tr>
+                        <td>{{ row.label }}</td>
+                        <td>{{ '%.2f'|format(row.spend) }}</td>
+                        <td>{{ '%.2f'|format(row.ads_sales) }}</td>
+                        <td>{{ '%.2f'|format(row.total_sales) }}</td>
+                        <td>{{ '%.2f'|format(row.efficiency) }}%</td>
+                        <td>
+                            <span class="performer-tooltip-wrap">
+                                <span class="performer-badge {{ 'performer-top' if status == 'Top Performer' else 'performer-mid' if status == 'Mid Performer' else 'performer-bottom' if status == 'Bottom Performer' else 'performer-fluctuate' if status == 'Fluctuate' else 'performer-na' }}" data-tooltip-trigger="1">{{ status }}</span>
+                                <span class="performer-detail-tooltip">
+                                    <div class="performer-detail-title">Month Comparison (Spend vs Sales)</div>
+                                    {% for md in row.month_details %}
+                                        <span class="performer-detail-row">
+                                            <span>{{ md.month }}</span>
+                                            <span>Spend: {{ '%.2f'|format(md.spend) }}</span>
+                                            <span>Sales: {{ '%.2f'|format(md.total_sales if params.sales_basis == 'total' else md.ads_sales) }}</span>
+                                            <span>ACOS: {{ '%.2f'|format(md.acos) }}%</span>
+                                        </span>
+                                    {% else %}
+                                        <span class="performer-detail-row"><span>No month data</span></span>
+                                    {% endfor %}
+                                </span>
+                            </span>
+                        </td>
+                        <td>{{ row.recommendation }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="text-center text-muted">No matching data found for selected filters.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+</div>
+{% if params.show_results %}
+<script>
+const trendRows = {{ trend | tojson }};
+const adTypeShare = {{ ad_type_share | tojson }};
+const topSkuRows = {{ top_sku_entities | tojson }};
+const scrollTarget = {{ params.scroll_to | tojson }};
+
+if (scrollTarget) {
+    requestAnimationFrame(() => {
+        const targetEl = document.getElementById(scrollTarget);
+        if (targetEl) {
+            targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        }
+    });
+}
+
+document.querySelectorAll('.performer-tooltip-wrap [data-tooltip-trigger=\"1\"]').forEach((badge) => {
+    badge.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const wrap = badge.closest('.performer-tooltip-wrap');
+        if (!wrap) return;
+        const shouldOpen = !wrap.classList.contains('tooltip-open');
+        document.querySelectorAll('.performer-tooltip-wrap.tooltip-open').forEach((openWrap) => {
+            openWrap.classList.remove('tooltip-open');
+        });
+        if (shouldOpen) {
+            wrap.classList.add('tooltip-open');
+        }
+    });
+});
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.performer-tooltip-wrap.tooltip-open').forEach((openWrap) => {
+        openWrap.classList.remove('tooltip-open');
+    });
+});
+
+new ApexCharts(document.querySelector('#spendSalesChart'), {
+    chart: { type: 'bar', height: 320, toolbar: { show: false } },
+    series: [
+        { name: 'Spend', data: trendRows.map(r => r.spend) },
+        { name: '{{ 'Total Sales' if params.sales_basis == 'total' else 'Ads Sales' }}', data: trendRows.map(r => {{ 'r.total_sales' if params.sales_basis == 'total' else 'r.ads_sales' }}) }
+    ],
+    colors: ['#2563eb', '#22c55e'],
+    xaxis: { categories: trendRows.map(r => r.month) },
+    dataLabels: { enabled: false },
+    plotOptions: { bar: { borderRadius: 6, columnWidth: '46%' } }
+}).render();
+
+const adTypeLabels = ['SP', 'SB', 'SBV', 'SD'];
+const adTypeSpendSeries = adTypeLabels.map((label) => {
+    const bucket = adTypeShare[label] || {};
+    return Number(bucket.spend || 0);
+});
+const adTypeHasData = adTypeSpendSeries.some((value) => value > 0);
+const adTypeTotalSpend = adTypeSpendSeries.reduce((acc, cur) => acc + cur, 0);
+const adTypePercentages = adTypeSpendSeries.map((value) => {
+    if (!adTypeHasData || adTypeTotalSpend <= 0) return 0;
+    return (value / adTypeTotalSpend) * 100;
+});
+
+new ApexCharts(document.querySelector('#adTypeShareChart'), {
+    chart: { type: 'donut', height: 320, toolbar: { show: false } },
+    stroke: {
+        show: true,
+        width: 2,
+        colors: ['#ffffff'],
+    },
+    labels: adTypeLabels,
+    series: adTypeHasData ? adTypeSpendSeries : [1, 1, 1],
+    colors: adTypeHasData ? ['#2563eb', '#f97316', '#dc2626', '#22c55e'] : ['#cbd5e1', '#cbd5e1', '#cbd5e1', '#cbd5e1'],
+    legend: {
+        position: 'bottom',
+        formatter: (seriesName, opts) => `${seriesName} ${adTypePercentages[opts.seriesIndex].toFixed(1)}%`,
+    },
+    dataLabels: {
+        enabled: true,
+        formatter: (val) => `${Number(val || 0).toFixed(1)}%`,
+        style: {
+            fontSize: '11px',
+            fontWeight: 700,
+            colors: ['#ffffff'],
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: (value) => adTypeHasData ? `${value.toFixed(2)}` : 'No spend data',
+        },
+    },
+    plotOptions: {
+        pie: {
+            dataLabels: {
+                minAngleToShowLabel: 0,
+                offset: 4,
+            },
+            donut: {
+                size: '60%',
+                labels: {
+                    show: true,
+                    value: {
+                        formatter: (value) => Number(value || 0).toFixed(2),
+                    },
+                    total: {
+                        show: true,
+                        label: 'Total Spend',
+                        formatter: () => adTypeHasData
+                            ? adTypeTotalSpend.toFixed(2)
+                            : '0.00',
+                    },
+                },
+            },
+        },
+    },
+}).render();
+
+new ApexCharts(document.querySelector('#topSkuAdsSalesChart'), {
+    chart: { type: 'bar', height: 320, toolbar: { show: false } },
+    series: [{ name: 'Ads Sales', data: topSkuRows.map(r => Number(r.ads_sales || 0)) }],
+    colors: ['#a855f7'],
+    plotOptions: { bar: { horizontal: true, borderRadius: 8, barHeight: '58%' } },
+    dataLabels: { enabled: false },
+    xaxis: { categories: topSkuRows.map(r => r.name || '') },
+    tooltip: { y: { formatter: (value) => `${Number(value || 0).toFixed(2)}` } },
+    noData: { text: 'No ASIN sales data available' }
+}).render();
+</script>
+{% endif %}
+</body>
+</html>
+
+
+
+

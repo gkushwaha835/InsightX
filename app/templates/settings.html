@@ -1,0 +1,286 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .settings-hero,
+  .settings-card,
+  .settings-pill {
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+  }
+
+  .settings-hero {
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+
+  .settings-kicker {
+    display: inline-block;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 10px;
+  }
+
+  .settings-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: #0f172a;
+  }
+
+  .settings-subtitle {
+    color: #64748b;
+    margin-bottom: 0;
+  }
+
+  .settings-card .card-body {
+    padding: 20px;
+  }
+
+  .block-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 12px;
+  }
+
+  .input-soft,
+  .select-soft {
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    min-height: 42px;
+  }
+
+  .btn-soft {
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .table-settings thead th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .table-settings td,
+  .table-settings th {
+    vertical-align: middle;
+  }
+
+  .table-settings tbody tr:nth-child(even) {
+    background: #fbfdff;
+  }
+
+  .settings-pill {
+    padding: 14px 16px;
+    height: 100%;
+  }
+
+  .pill-label {
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+
+  .pill-value {
+    color: #0f172a;
+    font-size: 1.02rem;
+    font-weight: 800;
+    margin-bottom: 0;
+    word-break: break-word;
+  }
+
+  .field-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+</style>
+
+<div class="settings-hero">
+  <span class="settings-kicker">Settings</span>
+  <div class="settings-title">Account & User Controls</div>
+  <p class="settings-subtitle">Manage your profile, brand name, security, and team permissions from one workspace.</p>
+</div>
+
+{% if errors %}
+  <div class="alert alert-danger">{% for e in errors %}<div>{{ e }}</div>{% endfor %}</div>
+{% endif %}
+{% if success %}<div class="alert alert-success">{{ success }}</div>{% endif %}
+
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="settings-pill">
+      <div class="pill-label">Account</div>
+      <div class="pill-value">{{ user.username }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="settings-pill">
+      <div class="pill-label">Role</div>
+      <div class="pill-value">{{ user.role }}</div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="settings-pill">
+      <div class="pill-label">Brand Name</div>
+      <div class="pill-value">{{ brand_name or 'Not set yet' }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-5">
+    <div class="card settings-card mb-4">
+      <div class="card-body">
+        <div class="block-title">Brand Profile</div>
+        <p class="text-muted small mb-3">Set the brand name that appears in reports and workspace sessions.</p>
+
+        <form method="post" action="{{ url_for('main.set_brand_name') }}" class="mb-2">
+          <label class="field-label">Brand Name</label>
+          <input class="form-control input-soft mb-3" type="text" name="brand_name" value="{{ brand_name }}" placeholder="Enter brand name" maxlength="120" required>
+          <button class="btn btn-primary btn-soft">Save Brand Name</button>
+        </form>
+
+        {% if can_manage %}
+        <form method="post" action="{{ url_for('main.skip_brand_name') }}">
+          <button class="btn btn-outline-secondary btn-soft">Skip Brand Prompt</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card settings-card">
+      <div class="card-body">
+        <div class="block-title">Security</div>
+
+        {% if can_view_data %}
+        <div class="mb-3">
+          <a href="{{ url_for('main.users_data') }}" class="btn btn-outline-primary btn-soft w-100">View Users Data</a>
+        </div>
+        {% endif %}
+
+        {% if not is_guest_user %}
+        <form method="post" class="mb-3">
+          <input type="hidden" name="action" value="change_password">
+          <label class="field-label">Current Password</label>
+          <input class="form-control input-soft mb-2" type="password" name="current_password" placeholder="Current password" required>
+          <label class="field-label">New Password</label>
+          <input class="form-control input-soft mb-2" type="password" name="new_password" placeholder="New password" required>
+          <label class="field-label">Confirm Password</label>
+          <input class="form-control input-soft mb-3" type="password" name="confirm_password" placeholder="Confirm password" required>
+          <button class="btn btn-primary btn-soft">Update Password</button>
+        </form>
+
+        <form method="post">
+          <input type="hidden" name="action" value="logout_other_devices">
+          <button class="btn btn-outline-danger btn-soft">Logout Other Devices</button>
+        </form>
+        {% else %}
+        <p class="text-muted mb-0">Email + Phone login mode is active. Password update is not required for this session.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if can_create %}
+  <div class="col-lg-7">
+    <div class="card settings-card mb-4">
+      <div class="card-body">
+        <div class="block-title">User Management</div>
+
+        <form method="post" class="row g-2">
+          <input type="hidden" name="action" value="add_user">
+          <div class="col-md-4">
+            <label class="field-label">Username</label>
+            <input class="form-control input-soft" name="username" placeholder="Username" required>
+          </div>
+          <div class="col-md-4">
+            <label class="field-label">Password</label>
+            <input class="form-control input-soft" name="password" placeholder="Password" required>
+          </div>
+          <div class="col-md-2">
+            <label class="field-label">Role</label>
+            <select class="form-select select-soft" name="role">
+              <option value="user">user</option>
+              {% if can_manage %}<option value="co_admin">co_admin</option>{% endif %}
+            </select>
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-success btn-soft w-100">Add</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {% if users %}
+    <div class="card settings-card">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-settings mb-0 align-middle">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role</th>
+                <th>Create Users</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for u in users %}
+              <tr>
+                <td>{{ u.username }}</td>
+                <td>{{ u.role }}</td>
+                <td>{{ 'Yes' if u.can_create_users else 'No' }}</td>
+                <td>
+                  <div class="d-flex gap-2 flex-wrap">
+                    {% if can_manage and u.role in ['co_admin', 'cd_admin'] %}
+                    <form method="post" class="d-inline">
+                      <input type="hidden" name="action" value="toggle_create_users">
+                      <input type="hidden" name="target_username" value="{{ u.username }}">
+                      <input type="hidden" name="grant_access" value="{{ 0 if u.can_create_users else 1 }}">
+                      <button class="btn btn-sm btn-outline-secondary btn-soft">{{ 'Revoke Create Access' if u.can_create_users else 'Grant Create Access' }}</button>
+                    </form>
+                    {% endif %}
+
+                    {% if can_manage and u.role != 'admin' and u.username != user.username %}
+                    <form method="post" class="d-inline">
+                      <input type="hidden" name="action" value="delete_user">
+                      <input type="hidden" name="target_username" value="{{ u.username }}">
+                      <button class="btn btn-sm btn-outline-danger btn-soft">Delete User</button>
+                    </form>
+                    {% elif u.username == user.username %}
+                    <span class="badge text-bg-primary">Current User</span>
+                    {% elif u.role == 'admin' %}
+                    <span class="badge text-bg-secondary">Protected Admin</span>
+                    {% else %}
+                    <span class="text-muted small">No actions</span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

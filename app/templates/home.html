@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InsightX</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+                linear-gradient(135deg, #f8fafc 0%, #eef2ff 45%, #f0f9ff 100%);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .dashboard-layout {
+            min-height: 100vh;
+            display: flex;
+        }
+
+        .side-nav {
+            width: 258px;
+            flex: 0 0 258px;
+            background: linear-gradient(180deg, #17306d 0%, #1f3d8a 50%, #12255c 100%);
+            color: #fff;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-shadow: inset -1px 0 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .side-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 6px;
+        }
+
+        .side-brand img {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        .side-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .side-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.88);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .side-link:hover,
+        .side-link.active {
+            background: rgba(255, 255, 255, 0.12);
+            color: #fff;
+        }
+
+        .side-link i {
+            font-size: 1rem;
+        }
+
+        .side-help {
+            margin-top: auto;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 16px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .side-help h6 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .side-help p {
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: rgba(255, 255, 255, 0.75);
+            margin-bottom: 10px;
+        }
+
+        .main-shell {
+            flex: 1;
+            min-width: 0;
+            padding: 18px 18px 30px;
+        }
+
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .burger-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .topbar-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .topbar-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #1d4ed8;
+            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.84rem;
+            font-weight: 800;
+        }
+
+        .page-shell {
+            max-width: 1260px;
+            margin: 0 auto;
+            padding: 0 16px 44px;
+        }
+
+        .hero-card,
+        .metric-card,
+        .panel-card {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 22px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.10);
+        }
+
+        .hero-card {
+            padding: 24px;
+        }
+
+        .hero-title {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: #0f172a;
+        }
+
+        .hero-copy {
+            color: #64748b;
+            margin: 0;
+        }
+
+        .dashboard-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .dashboard-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .metric-card .card-body,
+        .panel-card .card-body {
+            padding: 18px;
+        }
+
+        .metric-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 12px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            color: #0f172a;
+        }
+
+        .metric-delta {
+            font-size: 0.82rem;
+            color: #10b981;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+
+        .mini-chart {
+            height: 56px;
+            display: flex;
+            align-items: end;
+            gap: 4px;
+            margin-top: 12px;
+        }
+
+        .mini-chart span {
+            flex: 1;
+            background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+            border-radius: 8px 8px 4px 4px;
+        }
+
+        .mini-chart.revenue span { background: linear-gradient(180deg, #a78bfa 0%, #7c3aed 100%); }
+        .mini-chart.ctr span { background: linear-gradient(180deg, #67e8f9 0%, #0ea5e9 100%); }
+        .mini-chart.keywords span { background: linear-gradient(180deg, #86efac 0%, #16a34a 100%); }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .activity-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .activity-time {
+            font-size: 0.78rem;
+            color: #64748b;
+            font-weight: 700;
+            min-width: 54px;
+        }
+
+        .activity-title { font-weight: 700; color: #0f172a; }
+        .activity-copy { color: #64748b; font-size: 0.82rem; }
+
+        .insight-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .insight-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .insight-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #2563eb;
+            flex: 0 0 auto;
+        }
+
+        .recent-table {
+            width: 100%;
+            font-size: 0.9rem;
+        }
+
+        .recent-table th {
+            color: #64748b;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .recent-table td {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .quick-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .quick-action {
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 14px;
+            padding: 14px;
+            background: #fff;
+            min-height: 92px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .quick-action:hover {
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+        }
+
+        .quick-action .icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #eff6ff;
+            color: #2563eb;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 991.98px) {
+            .dashboard-layout {
+                flex-direction: column;
+            }
+            .side-nav {
+                width: 100%;
+                flex-basis: auto;
+                height: auto;
+                position: relative;
+            }
+            .main-shell {
+                padding: 16px 12px 28px;
+            }
+            .quick-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-layout">
+    <aside class="side-nav">
+        <div class="side-brand">
+            <img src="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425" alt="InsightX">
+            <span>InsightX</span>
+        </div>
+        <div class="side-nav-links">
+            <a class="side-link active" href="{{ url_for('main.home') }}"><i class="bi bi-house-fill"></i> Home</a>
+            <a class="side-link" href="{{ url_for('reports.ads_overview') }}"><i class="bi bi-grid-1x2-fill"></i> Ads Overview</a>
+            <a class="side-link" href="{{ url_for('reports.campaign_performance_report') }}"><i class="bi bi-bar-chart-fill"></i> Campaign Report</a>
+            <a class="side-link" href="{{ url_for('reports.search_term_report') }}"><i class="bi bi-search"></i> Search Term Report</a>
+            <a class="side-link" href="{{ url_for('main.settings') }}"><i class="bi bi-gear-fill"></i> Settings</a>
+        </div>
+        <div class="side-help">
+            <h6>Need Help?</h6>
+            <p>Check guides or contact support if something looks off.</p>
+            <a class="btn btn-light btn-sm w-100 fw-semibold" href="mailto:connect.insightx@gmail.com">Contact Support</a>
+        </div>
+    </aside>
+
+    <main class="main-shell">
+        <div class="topbar">
+            <div class="topbar-left">
+                <button class="burger-btn" type="button" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
+                <div class="text-secondary small fw-semibold">Workspace Dashboard</div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary theme-toggle-btn" type="button" aria-label="Toggle theme">🌙</button>
+                <div class="topbar-user">
+                    <span class="topbar-avatar">{{ (display_name[:1] if display_name else (user.username[:1] if user and user.username else 'U'))|upper }}</span>
+                    <span>{{ display_name if display_name else (user.username if user else 'User') }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-shell">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <div class="hero-card mb-4">
+                <div class="dashboard-head flex-wrap">
+                    <div>
+                        <h1 class="hero-title mb-1">Welcome back, {{ display_name if display_name else 'User' }}! 👋</h1>
+                        <p class="hero-copy">Here’s what’s happening with your account today.</p>
+                    </div>
+                    <div class="dashboard-actions">
+                        <a href="{{ url_for('reports.campaign_performance_report') }}" class="btn btn-primary">Upload New Report</a>
+                        <a href="{{ url_for('reports.advanced_feature') }}" class="btn btn-outline-secondary">View Dashboard</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-xl-3">
+                    <div class="metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-label"><span>Total Reports Uploaded</span><i class="bi bi-file-earmark-text"></i></div>
+                            <div class="metric-value">24</div>
+                            <div class="metric-delta">↑ 12% this month</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-label"><span>Campaigns Analyzed</span><i class="bi bi-bullseye"></i></div>
+                            <div class="metric-value">8</div>
+                            <div class="metric-delta">↑ 14% this month</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-label"><span>Revenue Tracked</span><i class="bi bi-currency-rupee"></i></div>
+                            <div class="metric-value">₹1.20L</div>
+                            <div class="metric-delta">↑ 18% this month</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="metric-card h-100">
+                        <div class="card-body">
+                            <div class="metric-label"><span>Growth Rate</span><i class="bi bi-graph-up"></i></div>
+                            <div class="metric-value">18%</div>
+                            <div class="metric-delta">↑ 5% vs last month</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-lg-6">
+                    <div class="panel-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="mb-0 fw-bold">Recent Activity</h5>
+                                <a href="#" class="small text-decoration-none">View All</a>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">10:20 AM</div>
+                                <div class="flex-grow-1">
+                                    <div class="activity-title">Campaign report uploaded</div>
+                                    <div class="activity-copy">File: Campaign_May_2024.xlsx</div>
+                                </div>
+                                <span class="status-pill">Done</span>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">11:00 AM</div>
+                                <div class="flex-grow-1">
+                                    <div class="activity-title">Search term report analyzed</div>
+                                    <div class="activity-copy">File: Search_Term_May_2024.xlsx</div>
+                                </div>
+                                <span class="status-pill">Done</span>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">12:15 PM</div>
+                                <div class="flex-grow-1">
+                                    <div class="activity-title">Ads overview data uploaded</div>
+                                    <div class="activity-copy">File: Ads_May_2024.xlsx</div>
+                                </div>
+                                <span class="status-pill">Done</span>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">01:30 PM</div>
+                                <div class="flex-grow-1">
+                                    <div class="activity-title">New insights generated</div>
+                                    <div class="activity-copy">Based on campaign performance</div>
+                                </div>
+                                <span class="status-pill">Live</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="panel-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h5 class="mb-0 fw-bold">AI Insights</h5>
+                                <a href="{{ url_for('reports.advanced_feature') }}" class="small text-decoration-none">View All</a>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon"><i class="bi bi-arrow-down"></i></div>
+                                <div>
+                                    <div class="fw-semibold">Reduce bids on 3 low CTR keywords</div>
+                                    <div class="text-secondary small">They are consuming budget with low performance.</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon"><i class="bi bi-arrow-up"></i></div>
+                                <div>
+                                    <div class="fw-semibold">Increase spend on 2 converting campaigns</div>
+                                    <div class="text-secondary small">They can bring more revenue with higher budget.</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                                <div>
+                                    <div class="fw-semibold">3 keywords are wasting budget</div>
+                                    <div class="text-secondary small">Consider pausing these keywords.</div>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <div class="insight-icon"><i class="bi bi-lightning-charge"></i></div>
+                                <div>
+                                    <div class="fw-semibold">Organic traffic improved by 12%</div>
+                                    <div class="text-secondary small">Great job! Keep optimizing content.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0 fw-bold">Performance Overview</h5>
+                        <select class="form-select form-select-sm w-auto">
+                            <option>This Month</option>
+                            <option>Last Month</option>
+                        </select>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="metric-card h-100">
+                                <div class="card-body">
+                                    <div class="metric-label"><span>Sales Trend</span><i class="bi bi-graph-up-arrow"></i></div>
+                                    <div class="metric-value">₹1.20L</div>
+                                    <div class="metric-delta">↑ 18%</div>
+                                    <div class="mini-chart">
+                                        <span style="height: 26%"></span><span style="height: 48%"></span><span style="height: 32%"></span><span style="height: 58%"></span><span style="height: 42%"></span><span style="height: 62%"></span><span style="height: 54%"></span><span style="height: 72%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="metric-card h-100">
+                                <div class="card-body">
+                                    <div class="metric-label"><span>Spend vs Revenue</span><i class="bi bi-activity"></i></div>
+                                    <div class="metric-value">₹80K / ₹1.20L</div>
+                                    <div class="mini-chart revenue">
+                                        <span style="height: 22%"></span><span style="height: 36%"></span><span style="height: 20%"></span><span style="height: 44%"></span><span style="height: 28%"></span><span style="height: 52%"></span><span style="height: 34%"></span><span style="height: 60%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="metric-card h-100">
+                                <div class="card-body">
+                                    <div class="metric-label"><span>CTR Performance</span><i class="bi bi-lightning"></i></div>
+                                    <div class="metric-value">2.45%</div>
+                                    <div class="metric-delta">↑ 8%</div>
+                                    <div class="mini-chart ctr">
+                                        <span style="height: 18%"></span><span style="height: 34%"></span><span style="height: 26%"></span><span style="height: 40%"></span><span style="height: 36%"></span><span style="height: 52%"></span><span style="height: 44%"></span><span style="height: 64%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="metric-card h-100">
+                                <div class="card-body">
+                                    <div class="metric-label"><span>Top Keywords</span><i class="bi bi-star"></i></div>
+                                    <div class="metric-value">245</div>
+                                    <div class="mini-chart keywords">
+                                        <span style="height: 28%"></span><span style="height: 44%"></span><span style="height: 38%"></span><span style="height: 56%"></span><span style="height: 42%"></span><span style="height: 66%"></span><span style="height: 50%"></span><span style="height: 70%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="panel-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0 fw-bold">Recent Files</h5>
+                                <a href="#" class="small text-decoration-none">View All</a>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="recent-table">
+                                    <thead>
+                                        <tr>
+                                            <th>File Name</th>
+                                            <th>Type</th>
+                                            <th>Upload Date</th>
+                                            <th>Status</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Campaign_May_2024.xlsx</td>
+                                            <td>Campaign Report</td>
+                                            <td>May 20, 2024 10:20 AM</td>
+                                            <td><span class="status-pill">Completed</span></td>
+                                            <td><i class="bi bi-eye"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Search_Term_May_2024.xlsx</td>
+                                            <td>Search Term Report</td>
+                                            <td>May 20, 2024 11:00 AM</td>
+                                            <td><span class="status-pill">Completed</span></td>
+                                            <td><i class="bi bi-eye"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Ads_May_2024.xlsx</td>
+                                            <td>Ads Overview</td>
+                                            <td>May 20, 2024 12:15 PM</td>
+                                            <td><span class="status-pill">Completed</span></td>
+                                            <td><i class="bi bi-eye"></i></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Organic_May_2024.xlsx</td>
+                                            <td>Organic Data</td>
+                                            <td>May 20, 2024 02:45 PM</td>
+                                            <td><span class="status-pill">Completed</span></td>
+                                            <td><i class="bi bi-eye"></i></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel-card h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="mb-0 fw-bold">Quick Actions</h5>
+                            </div>
+                            <div class="quick-grid">
+                                <a href="{{ url_for('reports.campaign_performance_report') }}" class="quick-action">
+                                    <div class="icon"><i class="bi bi-bar-chart"></i></div>
+                                    <div class="fw-semibold">Campaign Report</div>
+                                </a>
+                                <a href="{{ url_for('reports.search_term_report') }}" class="quick-action">
+                                    <div class="icon"><i class="bi bi-search"></i></div>
+                                    <div class="fw-semibold">Search Term Report</div>
+                                </a>
+                                <a href="{{ url_for('reports.wow_upload') }}" class="quick-action">
+                                    <div class="icon"><i class="bi bi-upload"></i></div>
+                                    <div class="fw-semibold">Export Reports</div>
+                                </a>
+                                <a href="{{ url_for('reports.advanced_feature') }}" class="quick-action">
+                                    <div class="icon"><i class="bi bi-graph-up-arrow"></i></div>
+                                    <div class="fw-semibold">View Analytics</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+</body>
+</html>

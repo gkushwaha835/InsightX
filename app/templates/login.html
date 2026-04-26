@@ -1,0 +1,669 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightX - Login</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+
+    <!-- Bootstrap and Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+
+    <style>
+        body {
+            background-color: #f8fbff;
+            background-image: radial-gradient(#d1d5db 1px, transparent 1px);
+            background-size: 24px 24px;
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .bg-wave-1,
+        .bg-wave-2 {
+            position: fixed;
+            z-index: -1;
+            pointer-events: none;
+            filter: blur(60px);
+        }
+
+        .bg-wave-1 {
+            bottom: -10vh;
+            left: -10vw;
+            width: 50vw;
+            height: 50vw;
+            background: rgba(59, 130, 246, 0.4);
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+
+        .bg-wave-2 {
+            bottom: -20vh;
+            left: 10vw;
+            width: 40vw;
+            height: 40vw;
+            background: rgba(147, 197, 253, 0.4);
+            border-radius: 60% 40% 30% 70% / 50% 40% 50% 60%;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 1rem 2.5rem 1.25rem;
+        }
+
+        .theme-fab {
+            position: fixed;
+            top: 14px;
+            right: 14px;
+            z-index: 1000;
+            width: 42px;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.42);
+            background: rgba(255, 255, 255, 0.9);
+            color: #0f172a;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+        }
+
+        .feature-badge {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            padding: 0.42rem 0.9rem;
+            border-radius: 50rem;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .hero-title {
+            font-size: 2.35rem;
+            font-weight: 800;
+            line-height: 1.08;
+            color: #0f172a;
+            margin-bottom: 0.8rem;
+        }
+
+        .hero-title span {
+            color: #2563eb;
+        }
+
+        .upload-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 1rem;
+            padding: 1.15rem 1.25rem;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.35rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 1.1rem 0.9rem;
+            margin-top: 1.35rem;
+            max-width: 900px;
+        }
+
+        .feature-grid .feature-item:nth-child(6) {
+            grid-column: 2;
+        }
+
+        .feature-grid .feature-item:nth-child(7) {
+            grid-column: 3;
+        }
+
+        .feature-grid .feature-item:nth-child(8) {
+            grid-column: 4;
+        }
+
+        .feature-icon-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 0.55rem;
+            font-size: 1.2rem;
+        }
+
+        .login-card {
+            background: #ffffff;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+            padding: 2rem 2.1rem;
+            width: 100%;
+            max-width: 420px;
+            height: 690px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .auth-shell {
+            min-height: 690px;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-shell .login-card {
+            width: 100%;
+        }
+
+        .auth-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow-y: auto;
+            padding-right: 2px;
+        }
+
+        .auth-content .tab-content {
+            flex: 1;
+            min-height: 0;
+        }
+
+        .auth-content .tab-pane {
+            height: 100%;
+        }
+
+        .nav-pills .nav-link {
+            color: #64748b;
+            font-weight: 600;
+            border-radius: 0;
+            padding: 0.65rem 1rem;
+            font-size: 0.95rem;
+            background: transparent;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-pills .nav-link.active {
+            color: #2563eb;
+            background: transparent;
+            border-bottom: 2px solid #2563eb;
+        }
+
+        .custom-input-group {
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .custom-input-group .input-group-text {
+            background-color: #fff;
+            border-color: #cbd5e1;
+            color: #94a3b8;
+            border-top-left-radius: 0.5rem;
+            border-bottom-left-radius: 0.5rem;
+        }
+
+        .custom-input-group .form-control {
+            border-color: #cbd5e1;
+            font-size: 0.9rem;
+            padding-top: 0.55rem;
+            padding-bottom: 0.55rem;
+        }
+
+        .custom-input-group .form-control:focus {
+            box-shadow: none;
+            border-color: #cbd5e1;
+        }
+
+        .custom-input-group:focus-within .input-group-text,
+        .custom-input-group:focus-within .form-control {
+            border-color: #2563eb;
+            color: #2563eb;
+        }
+
+        .custom-btn {
+            background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            padding: 0.62rem;
+            box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.25);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .custom-btn:hover {
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .custom-btn i {
+            position: absolute;
+            right: 1.5rem;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .google-btn {
+            border: 1px solid #e2e8f0;
+            background: #fff;
+            color: #475569;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.6rem;
+            transition: background 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            margin: 0.8rem 0;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .divider:not(:empty)::before {
+            margin-right: .5em;
+        }
+
+        .divider:not(:empty)::after {
+            margin-left: .5em;
+        }
+
+        @media (max-width: 991px) {
+            .main-container {
+                flex-direction: column;
+                padding: 1.1rem;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .left-panel {
+                margin-bottom: 2rem;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                max-width: 100%;
+            }
+
+            .feature-grid .feature-item:nth-child(6),
+            .feature-grid .feature-item:nth-child(7),
+            .feature-grid .feature-item:nth-child(8) {
+                grid-column: auto;
+            }
+
+            .auth-shell {
+                min-height: auto;
+                width: 100%;
+            }
+
+            .login-card {
+                height: auto;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero-title {
+                font-size: 1.7rem;
+            }
+
+            .login-card {
+                padding: 1.5rem;
+            }
+        }
+    
+        html[data-theme="dark"] .login-card .text-dark,
+        html[data-theme="dark"] .login-card h3.text-dark,
+        html[data-theme="dark"] .login-card .form-label.text-dark {
+            color: #e2e8f0 !important;
+        }
+
+        html[data-theme="dark"] .upload-card h6.text-dark,
+        html[data-theme="dark"] .feature-grid .text-dark {
+            color: #e2e8f0 !important;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="themeToggle" data-theme-toggle class="theme-fab" type="button" aria-label="Toggle theme">🌙</button>
+    <div class="bg-wave-1"></div>
+    <div class="bg-wave-2"></div>
+
+    <div class="container-fluid main-container">
+        <div class="row w-100 align-items-center justify-content-between mx-0">
+            <!-- Left Side -->
+            <div class="col-lg-6 col-xl-5 left-panel ps-lg-4">
+                <div class="feature-badge">
+                    <i class="bi bi-lightning-charge-fill me-2"></i> 100% FREE â€¢ NO SETUP â€¢ INSTANT INSIGHTS
+                </div>
+
+                <h1 class="hero-title">
+                    Free <span>InsightX</span> Dashboard <br>for Amazon Sellers
+                </h1>
+
+                <p class="text-secondary fs-6 mb-4 pb-2" style="max-width: 90%;">
+                    Upload your campaign or sales Excel sheet, add your email and mobile number. No complicated setup.
+                    No long onboarding.
+                </p>
+
+                <div class="upload-card">
+                    <div class="rounded-circle d-flex justify-content-center align-items-center me-4"
+                        style="width: 54px; height: 54px; background: #eff6ff; color: #3b82f6; flex-shrink: 0;">
+                        <i class="bi bi-cloud-arrow-up fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">Upload your file and get instant insights</h6>
+                        <p class="text-secondary mb-0" style="font-size: 0.85rem;">Just upload your Excel file and
+                            explore key metrics, trends, and performance insights in seconds.</p>
+                    </div>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #ecfdf5; color: #10b981;">
+                                <i class="bi bi-file-earmark-spreadsheet-fill"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Manual Excel Upload</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Simple & Secure</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #f5f3ff; color: #8b5cf6;">
+                                <i class="bi bi-speedometer"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Instant Dashboard</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Preview</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #fff7ed; color: #f97316;">
+                                <i class="bi bi-bar-chart-fill"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Key Metrics</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">At a Glance</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #ecfeff; color: #06b6d4;">
+                                <i class="bi bi-search"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Search Term</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Insights</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #fff1f2; color: #ef4444;">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Campaign</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Performance</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #f0fdf4; color: #22c55e;">
+                                <i class="bi bi-currency-rupee"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">Sales</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Tracking</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #eff6ff; color: #3b82f6;">
+                                <i class="bi bi-percent"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">ACOS</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Efficiency</span>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon-wrapper">
+                            <div class="feature-icon-circle" style="background: #fffbeb; color: #f59e0b;">
+                                <i class="bi bi-lightning-charge-fill"></i>
+                            </div>
+                            <span class="fw-bold text-dark d-block" style="font-size: 0.8rem;">CTR</span>
+                            <span class="text-secondary d-block mt-1" style="font-size: 0.75rem;">Click Rate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side (Login Box) -->
+            <div class="col-lg-6 col-xl-5 d-flex justify-content-lg-end mt-5 mt-lg-0 pe-lg-4 auth-shell">
+                <div class="login-card" data-auth-mode="{{ auth_mode or 'login' }}">
+                    <div class="auth-content">
+                        <div class="text-center mb-3 pb-1">
+                        <h3 class="fw-bold text-dark mb-2" style="font-size: 1.55rem;">Welcome to</h3>
+                        <img src="{{ url_for('static', filename='images/insightx-logo.png') }}?v=20260425"
+                            alt="InsightX" style="height: 32px; margin-bottom: 0.75rem;">
+                        <p class="text-secondary mb-0" style="font-size: 0.78rem;">Use your email + password to
+                            login,<br>or create a new account.</p>
+                        </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                    {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} py-2 text-center" style="font-size: 0.85rem;">{{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <!-- Tabs -->
+                    <ul class="nav nav-pills nav-justified mb-4 border-bottom" id="authTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link custom-tab active" id="login-tab" data-bs-toggle="pill"
+                                data-bs-target="#loginFormContainer" type="button" role="tab">Login</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link custom-tab" id="signup-tab" data-bs-toggle="pill"
+                                data-bs-target="#signupFormContainer" type="button" role="tab">Sign Up</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="authTabsContent">
+                        <!-- Login Form -->
+                        <div class="tab-pane fade show active" id="loginFormContainer" role="tabpanel">
+                            <form method="POST" id="login-form">
+                                <input type="hidden" name="auth_mode" value="login">
+
+                                <div class="mb-3">
+                                    <label class="form-label text-dark fw-bold mb-1"
+                                        style="font-size: 0.8rem;">Email</label>
+                                    <div class="input-group custom-input-group">
+                                        <span class="input-group-text border-end-0"><i
+                                                class="bi bi-envelope"></i></span>
+                                        <input type="email" name="email" class="form-control border-start-0 ps-0"
+                                            placeholder="Enter your email" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <label class="form-label text-dark fw-bold mb-0"
+                                            style="font-size: 0.8rem;">Password</label>
+                                    </div>
+                                    <div class="input-group custom-input-group">
+                                        <span class="input-group-text border-end-0"><i class="bi bi-lock"></i></span>
+                                        <input type="password" name="password" id="login-pwd"
+                                            class="form-control border-start-0 border-end-0 px-0"
+                                            placeholder="Enter your password" required autocomplete="current-password">
+                                        <span class="input-group-text border-start-0 bg-white cursor-pointer"
+                                            onclick="togglePwd('login-pwd', 'login-eye')"><i
+                                                class="bi bi-eye-slash text-secondary" id="login-eye"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="text-end mb-4">
+                                    <a href="{{ url_for('main.forgot_password') }}"
+                                        class="text-primary text-decoration-none fw-semibold"
+                                        style="font-size: 0.8rem;">Forgot password?</a>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 custom-btn text-white">
+                                    Login <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </form>
+                            <div class="divider mt-4">or</div>
+                            <a href="{{ url_for('main.google_login', mode='login') }}" class="google-btn w-100 d-flex justify-content-center align-items-center text-decoration-none">
+                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
+                                    style="width: 20px; height: 20px; margin-right: 12px;">
+                                Continue with Google
+                            </a>
+                        </div>
+
+                        <!-- Sign Up Form -->
+                        <div class="tab-pane fade" id="signupFormContainer" role="tabpanel">
+                            <form method="POST" id="signup-form">
+                                <input type="hidden" name="auth_mode" value="signup">
+
+                                <div class="mb-2">
+                                    <label class="form-label text-dark fw-bold mb-1"
+                                        style="font-size: 0.75rem;">Email</label>
+                                    <div class="input-group custom-input-group">
+                                        <span class="input-group-text border-end-0"><i
+                                                class="bi bi-envelope"></i></span>
+                                        <input type="email" name="email" class="form-control border-start-0 ps-0"
+                                            placeholder="Enter your email" required>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label text-dark fw-bold mb-1"
+                                        style="font-size: 0.75rem;">Password</label>
+                                    <div class="input-group custom-input-group">
+                                        <span class="input-group-text border-end-0"><i class="bi bi-lock"></i></span>
+                                        <input type="password" name="password" id="signup-pwd"
+                                            class="form-control border-start-0 border-end-0 px-0"
+                                            placeholder="Minimum 6 characters" required autocomplete="new-password">
+                                        <span class="input-group-text border-start-0 bg-white cursor-pointer"
+                                            onclick="togglePwd('signup-pwd', 'signup-eye')"><i
+                                                class="bi bi-eye-slash text-secondary" id="signup-eye"></i></span>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label text-dark fw-bold mb-1" style="font-size: 0.75rem;">Confirm
+                                        Password</label>
+                                    <div class="input-group custom-input-group">
+                                        <span class="input-group-text border-end-0"><i
+                                                class="bi bi-lock-fill"></i></span>
+                                        <input type="password" name="confirm_password" id="signup-confirm-pwd"
+                                            class="form-control border-start-0 border-end-0 px-0"
+                                            placeholder="Re-enter password" required autocomplete="new-password">
+                                        <span class="input-group-text border-start-0 bg-white cursor-pointer"
+                                            onclick="togglePwd('signup-confirm-pwd', 'signup-confirm-eye')"><i
+                                                class="bi bi-eye-slash text-secondary"
+                                                id="signup-confirm-eye"></i></span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary w-100 custom-btn text-white">
+                                    Sign Up <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </form>
+                            <div class="divider mt-3">or</div>
+                            <a href="{{ url_for('main.google_login', mode='signup') }}" class="google-btn w-100 d-flex justify-content-center align-items-center text-decoration-none" style="font-size: 0.95rem;">
+                                <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google"
+                                    style="width: 18px; height: 18px; margin-right: 10px;">
+                                Sign up with Google
+                            </a>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (needed for tabs) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle password visibility
+        function togglePwd(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("bi-eye-slash");
+                icon.classList.add("bi-eye");
+            } else {
+                input.type = "password";
+                icon.classList.remove("bi-eye");
+                icon.classList.add("bi-eye-slash");
+            }
+        }
+
+        // Handle pre-selected auth mode from backend
+        document.addEventListener('DOMContentLoaded', function () {
+            const authCard = document.querySelector('.login-card');
+            if (authCard) {
+                const mode = authCard.getAttribute('data-auth-mode') || 'login';
+                if (mode === 'signup') {
+                    const signupTab = document.getElementById('signup-tab');
+                    if (signupTab) {
+                        const tab = new bootstrap.Tab(signupTab);
+                        tab.show();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
+
+

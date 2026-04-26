@@ -1,0 +1,83 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">View Ads report</h4>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('main.users_data_ads_report_download', dashboard_log_id=dashboard_log.id, business_log_id=business_log.id) }}" class="btn btn-outline-dark">Download</a>
+    <a href="{{ url_for('main.users_data_activity', email=dashboard_log.user_email, phone=dashboard_log.phone_number) }}" class="btn btn-outline-secondary">Back to Activity</a>
+  </div>
+</div>
+
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <div class="row g-3">
+      <div class="col-md-6">
+        <div class="text-muted small">MOM Dashboard File</div>
+        <div class="fw-semibold">{{ dashboard_log.file_name }}</div>
+      </div>
+      <div class="col-md-6">
+        <div class="text-muted small">MOM Business Report File</div>
+        <div class="fw-semibold">{{ business_log.file_name }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Row Labels</th>
+            <th>Sum of Impressions</th>
+            <th>Sum of Clicks</th>
+            <th>Sum of Page Views - Total</th>
+            <th>Sum of Sessions - Total</th>
+            <th>Sum of Spend</th>
+            <th>Sum of Sales</th>
+            <th>Sum of Units Ordered</th>
+            <th>Sum of Ordered Product Sales</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+          <tr>
+            <td>{{ row.asin }}</td>
+            <td>{{ '%.6f'|format(row.impressions)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.clicks)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.page_views)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.sessions)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.spend)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.sales)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.units_ordered)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(row.ordered_product_sales)|replace('.000000', '') }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" class="text-center text-muted">No merged ads report rows found.</td></tr>
+          {% endfor %}
+        </tbody>
+        {% if rows %}
+        <tfoot>
+          <tr class="fw-semibold">
+            <td>Total</td>
+            <td>{{ '%.6f'|format(totals.impressions)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.clicks)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.page_views)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.sessions)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.spend)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.sales)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.units_ordered)|replace('.000000', '') }}</td>
+            <td>{{ '%.6f'|format(totals.ordered_product_sales)|replace('.000000', '') }}</td>
+          </tr>
+        </tfoot>
+        {% endif %}
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+

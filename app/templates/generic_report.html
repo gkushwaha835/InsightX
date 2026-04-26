@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page_title or 'InsightX' }}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+  <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(14, 165, 233, 0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(34, 197, 94, 0.14), transparent 28%),
+        linear-gradient(135deg, #f8fafc 0%, #eef2ff 45%, #f0f9ff 100%);
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .hero-card,
+    .metric-card,
+    .panel-card {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.10);
+    }
+    .hero-card { padding: 24px; }
+    .hero-title {
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+    .hero-copy { color: #64748b; margin: 0; }
+    .metric-card .card-body, .panel-card .card-body { padding: 18px; }
+    .metric-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #64748b;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+    .metric-value {
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1;
+      color: #0f172a;
+    }
+    .metric-delta { font-size: 0.82rem; color: #10b981; font-weight: 700; margin-top: 8px; }
+    .table-wrap {
+      width: 100%;
+      overflow: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+    }
+    .table-wrap table { margin-bottom: 0; }
+    .table-wrap thead th {
+      position: sticky;
+      top: 0;
+      background: #f8fafc;
+      z-index: 1;
+      white-space: nowrap;
+    }
+    .table-wrap td, .table-wrap th { white-space: nowrap; vertical-align: middle; }
+    .compact-table th, .compact-table td { font-size: 13px; padding: 0.48rem 0.58rem; }
+    .truncate-campaign {
+      display: inline-block;
+      max-width: 220px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: bottom;
+    }
+    .mono { font-variant-numeric: tabular-nums; }
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .hero-btn { border-radius: 11px; min-height: 46px; padding: 0 18px; font-weight: 600; }
+    .upload-shell {
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+    .upload-shell .alert {
+      margin-bottom: 18px;
+    }
+    .upload-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+    }
+    .upload-instructions,
+    .upload-form-card {
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+      padding: 18px;
+    }
+    .upload-instructions h5,
+    .upload-form-card h5 {
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .upload-steps {
+      margin: 0;
+      padding-left: 18px;
+      color: #475569;
+    }
+    .upload-steps li { margin-bottom: 8px; }
+    .upload-brand {
+      width: 100%;
+      max-width: 250px;
+      height: auto;
+      display: block;
+      margin-bottom: 10px;
+      border-radius: 10px;
+    }
+    .upload-input {
+      border-radius: 14px;
+      padding: 12px 14px;
+    }
+    .upload-btn {
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+      border: 0;
+    }
+    .chart-host { width: 100%; height: 320px; }
+    .section-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+    .section-copy { color: #64748b; margin-bottom: 14px; }
+    .performer-filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 10px;
+      padding: 10px 12px;
+      border: 1px solid #dbe2ea;
+      border-radius: 12px;
+      background: #fbfdff;
+      margin-bottom: 12px;
+    }
+    .performer-filter-option {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: .9rem;
+      color: #1f2937;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      padding: 6px 11px;
+      margin: 0;
+    }
+    .hero-card .input-group {
+      flex-wrap: nowrap;
+    }
+    .hero-card .input-group .input-group-text {
+      white-space: nowrap;
+    }
+    .hero-card .input-group input[type="number"] {
+      min-width: 84px;
+      width: 84px;
+      flex: 0 0 84px;
+    }
+    .hero-card .threshold-col {
+      padding-right: 14px;
+    }
+    @media (max-width: 991.98px) {
+      .hero-card .threshold-col {
+        padding-right: calc(var(--bs-gutter-x) * .5);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard-layout">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <img src="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425" alt="InsightX">
+      <span>InsightX</span>
+    </div>
+    <div class="side-nav-links">
+      <a class="side-link" href="{{ url_for('main.home') }}"><i class="bi bi-house-fill"></i> Home</a>
+      <a class="side-link active" href="{{ url_for('reports.ads_overview') }}"><i class="bi bi-grid-1x2-fill"></i> Ads Overview</a>
+      <a class="side-link" href="{{ url_for('reports.campaign_performance_report') }}"><i class="bi bi-bar-chart-fill"></i> Campaign Report</a>
+      <a class="side-link" href="{{ url_for('reports.search_term_report') }}"><i class="bi bi-search"></i> Search Term Report</a>
+      <a class="side-link" href="{{ url_for('main.settings') }}"><i class="bi bi-gear-fill"></i> Settings</a>
+    </div>
+    <div class="side-help">
+      <h6>Need Help?</h6>
+      <p>Check guides or contact support if something looks off.</p>
+      <a class="btn btn-light btn-sm w-100 fw-semibold" href="mailto:connect.insightx@gmail.com">Contact Support</a>
+    </div>
+  </aside>
+
+  <main class="main-shell">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="burger-btn" type="button" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
+        <div class="text-secondary small fw-semibold">Workspace Dashboard</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary theme-toggle-btn" type="button" aria-label="Toggle theme">🌙</button>
+        <div class="topbar-user">
+          <span class="topbar-avatar">{{ (display_name[:1] if display_name else (user.username[:1] if user and user.username else 'U'))|upper }}</span>
+          <span>{{ display_name if display_name else (user.username if user else 'User') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-shell">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if report_key == 'ads_overview' %}
+      <div class="panel-card upload-shell">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+          <div>
+            <h4 class="mb-1 fw-bold">Upload Monthly Ads Report</h4>
+            <p class="mb-0 text-secondary">Uploading a new file will replace the previous monthly analysis data.</p>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary btn-sm">Home</a>
+            <a href="{{ url_for('main.settings') }}" class="btn btn-outline-dark btn-sm">Settings</a>
+          </div>
+        </div>
+
+        <div class="alert alert-warning">
+          <strong>Replace mode is active:</strong> when you upload a new report, old data from <code>monthly_ads</code> will be removed and replaced with the latest file.
+        </div>
+
+        <div class="upload-grid">
+          <div class="upload-instructions">
+            <img src="{{ url_for('static', filename='images/insightx-logo.png') }}?v=20260425" alt="InsightX" class="upload-brand">
+            <h5>How to download Ads data</h5>
+            <ol class="upload-steps">
+              <li>Go to Amazon Ads dashboard.</li>
+              <li>In left sidebar click on Bulk Operation.</li>
+              <li>Select date range (Month) you want to analyze.</li>
+              <li>Tick only Sponsored Product, Sponsored Display, Sponsored Brand.</li>
+              <li>Click Create Spreadsheet and wait until it downloads.</li>
+            </ol>
+            <h5 class="mt-4">How to download Organic data</h5>
+            <ol class="upload-steps">
+              <li>Go to Seller Central &gt; Business Report.</li>
+              <li>In left side click on Detail Page Sales and Traffic.</li>
+              <li>Select date range and click download.</li>
+            </ol>
+          </div>
+
+          <div class="upload-form-card">
+            <form method="post" action="{{ url_for('upload.upload_page') }}" enctype="multipart/form-data">
+              <input type="hidden" name="source_page" value="ads_overview">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Upload Bulk Downloaded File (Ads)</label>
+                <input type="file" name="file" class="form-control upload-input" accept=".xlsx,.xls" required>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Upload Business Report File (Organic)</label>
+                <input type="file" name="business_file" class="form-control upload-input" accept=".xlsx,.xls,.csv" required>
+              </div>
+              <button type="submit" class="btn btn-primary upload-btn w-100">Upload And Replace Data</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="hero-card mb-4">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+          <div>
+            <h1 class="hero-title">InsightX</h1>
+            <p class="hero-copy">Set your filters and click Analyze to load comparison insights.</p>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary btn-sm hero-btn">Home</a>
+          </div>
+        </div>
+
+        <hr>
+
+        <form method="get">
+          <input type="hidden" name="dimension" value="asin">
+          {% for month in selected_months %}
+            <input type="hidden" name="selected_months" value="{{ month }}">
+          {% endfor %}
+          <div class="row g-3">
+            <div class="col-md-2">
+              <label class="form-label">Analysis Type</label>
+              <input type="text" class="form-control" value="ASIN Wise" readonly>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Search ASIN</label>
+              <input type="text" name="sku_search" value="{{ params.sku_search }}" class="form-control" placeholder="Search">
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Sales Basis</label>
+              <select name="sales_basis" class="form-control">
+                <option value="ads" {{ 'selected' if params.sales_basis == 'ads' else '' }}>Ads Sales</option>
+                <option value="total" {{ 'selected' if params.sales_basis == 'total' else '' }}>Total Sales</option>
+              </select>
+            </div>
+
+            <div class="col-md-2 threshold-col">
+              <label class="form-label">Top Performer</label>
+              <div class="input-group"><span class="input-group-text">ACOS Under</span><input type="number" step="0.01" min="0" name="top_threshold" value="{{ params.thresholds.top }}" class="form-control"></div>
+            </div>
+            <div class="col-md-2 threshold-col">
+              <label class="form-label">Mid Performer Min</label>
+              <div class="input-group"><span class="input-group-text">ACOS</span><input type="number" step="0.01" min="0" name="mid_min_threshold" value="{{ params.thresholds.mid_min }}" class="form-control"></div>
+            </div>
+            <div class="col-md-2 threshold-col">
+              <label class="form-label">Mid Performer Max</label>
+              <div class="input-group"><span class="input-group-text">Between</span><input type="number" step="0.01" min="0" name="mid_max_threshold" value="{{ params.thresholds.mid_max }}" class="form-control"></div>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label">Bottom Performer</label>
+              <div class="input-group"><span class="input-group-text">ACOS Above</span><input type="number" step="0.01" min="0" name="bottom_threshold" value="{{ params.thresholds.bottom }}" class="form-control"></div>
+            </div>
+          </div>
+          <br>
+          <button class="btn btn-primary" name="analyze" value="1">Analyze</button>
+        </form>
+      </div>
+
+      {% if show_results %}
+      <div class="row g-3 mb-4">
+        <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">Total Spend</div><div class="metric-value">{{ overview.total_spend }}</div></div></div></div>
+        <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">Ads Sales</div><div class="metric-value">{{ overview.ads_sales }}</div></div></div></div>
+        <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">Total Sales</div><div class="metric-value">{{ overview.total_sales }}</div></div></div></div>
+        <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">ACOS / TACOS</div><div class="metric-value">{{ overview.acos }}% / {{ overview.tacos }}%</div></div></div></div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-12">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
+                <div>
+                  <h5 class="mb-1 fw-bold">Top {{ dimension|upper }} by Spend</h5>
+                  <div class="text-secondary small">Sorted by spend with sales and ACOS context.</div>
+                </div>
+                <form method="get" class="d-flex align-items-end gap-2">
+                  {% for key, values in request.args.lists() %}
+                    {% if key != 'view_rows' %}
+                      {% for value in values %}
+                        <input type="hidden" name="{{ key }}" value="{{ value }}">
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                  <div>
+                    <label class="form-label small mb-1">View Rows</label>
+                    <select name="view_rows" class="form-select form-select-sm" onchange="this.form.submit()">
+                      {% for limit in [5,10,15,20,0] %}
+                        <option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if view_rows == limit else '' }}>
+                          {{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </form>
+              </div>
+              <p class="text-secondary small mb-2">Showing {{ top_entities|length }} of {{ top_entities_total }} rows.</p>
+              <div class="table-wrap">
+                <table class="table table-sm compact-table mb-0">
+                  <thead><tr><th>{{ dimension|upper }}</th><th>Spend</th><th>Ads Sales</th><th>ACOS</th><th>TACOS</th></tr></thead>
+                  <tbody>
+                    {% for row in top_entities %}
+                    <tr>
+                      <td class="truncate-campaign" title="{{ row.name }}">{{ row.name }}</td>
+                      <td class="mono">{{ row.spend }}</td>
+                      <td class="mono">{{ row.ads_sales }}</td>
+                      <td class="mono">{{ row.acos }}%</td>
+                      <td class="mono">{{ row.tacos }}%</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mt-1">
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Spend vs Sales by Month</div>
+              <p class="section-copy">Track how media spend compares with sales across selected months.</p>
+              <div id="spendSalesChart" class="chart-host"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Spend Share by Ad Type (SP/SB/SBV/SD)</div>
+              <p class="section-copy">See how ad spend is distributed across major ad types.</p>
+              <div id="adTypeShareChart" class="chart-host"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Top SKU by Ads Sales</div>
+              <p class="section-copy">Top SKUs ranked by ads sales for current filter scope.</p>
+              <div id="topSkuAdsSalesChart" class="chart-host"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Critical ASIN Watchlist</div>
+              <p class="section-copy">Immediate attention rows based on spend, ACOS, CTR, conversion, and trend.</p>
+              <div class="table-wrap">
+                <table class="table table-bordered align-middle mb-0">
+                  <thead><tr><th>Entity</th><th>Status</th><th>Issue</th><th>Action</th></tr></thead>
+                  <tbody>
+                    {% for item in critical_watchlist %}
+                    <tr>
+                      <td>{{ item.label }}</td>
+                      <td>{{ item.status }}</td>
+                      <td>{{ item.issue }}</td>
+                      <td>{{ item.action }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No critical watchlist rows for current filters.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mt-1">
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Top Performing Entities</div>
+              <p class="section-copy">Best performers by selected efficiency rules.</p>
+              <div class="table-wrap">
+                <table class="table table-bordered align-middle mb-0">
+                  <thead><tr><th>Entity</th><th>Total Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+                  <tbody>
+                    {% for row in top_performers %}
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ '%.2f'|format(row.spend) }}</td>
+                      <td>{{ '%.2f'|format(row.ads_sales if params.sales_basis == 'ads' else row.total_sales) }}</td>
+                      <td>{{ '%.2f'|format(row.efficiency) }}%</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No top performer data available.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Worst Performing Entities</div>
+              <p class="section-copy">Needs immediate optimization focus.</p>
+              <div class="table-wrap">
+                <table class="table table-bordered align-middle mb-0">
+                  <thead><tr><th>Entity</th><th>Total Spend</th><th>Sales</th><th>ACOS</th></tr></thead>
+                  <tbody>
+                    {% for row in worst_performers %}
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ '%.2f'|format(row.spend) }}</td>
+                      <td>{{ '%.2f'|format(row.ads_sales if params.sales_basis == 'ads' else row.total_sales) }}</td>
+                      <td>{{ '%.2f'|format(row.efficiency) }}%</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No worst performer data available.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-12">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="section-title">Opportunity Finder - Entity Wise</div>
+              <p class="section-copy">Tracks rows where action can improve performance quickly.</p>
+              <div class="table-wrap">
+                <table class="table table-bordered align-middle mb-0">
+                  <thead><tr><th>Entity</th><th>Issue</th><th>Metric Basis</th><th>Recommendation</th></tr></thead>
+                  <tbody>
+                    {% for o in opportunities %}
+                    <tr>
+                      <td>{{ o.label }}</td>
+                      <td>{{ 'Low CTR' if o.ctr < 0.5 else ('Low Conversion' if o.conversion_rate < 3 else 'Watch') }}</td>
+                      <td>Spend: {{ '%.2f'|format(o.spend) }}, CTR: {{ '%.2f'|format(o.ctr) }}%, Conv: {{ '%.2f'|format(o.conversion_rate) }}%</td>
+                      <td>{{ o.recommendation }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">No opportunities matched the current rules.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-4 mt-1">
+        <div class="col-12">
+          <div class="panel-card h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-2 mb-2 flex-wrap">
+                <div>
+                  <div class="section-title mb-0">Detailed Entity Analysis</div>
+                  <p class="section-copy mb-0">Complete analysis rows for current filters.</p>
+                </div>
+                <div class="d-flex align-items-end gap-2 flex-wrap">
+                  <form method="get" class="d-flex align-items-end gap-2">
+                    {% for key, values in request.args.lists() %}
+                      {% if key != 'view_rows' and key != 'export' %}
+                        {% for value in values %}
+                          <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                    <div>
+                      <label class="form-label small mb-1">View Rows</label>
+                      <select name="view_rows" class="form-select form-select-sm" onchange="this.form.submit()">
+                        {% for limit in [5,10,15,20,0] %}
+                          <option value="{{ 'all' if limit == 0 else limit }}" {{ 'selected' if view_rows == limit else '' }}>
+                            {{ 'Show All' if limit == 0 else ('Show ' ~ limit) }}
+                          </option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </form>
+                  <form method="get">
+                    {% for key, values in request.args.lists() %}
+                      {% if key != 'export' %}
+                        {% for value in values %}
+                          <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                    <input type="hidden" name="export" value="excel">
+                    <button type="submit" class="btn btn-outline-success btn-sm">Export Excel</button>
+                  </form>
+                  <form method="get">
+                    {% for key, values in request.args.lists() %}
+                      {% if key != 'export' %}
+                        {% for value in values %}
+                          <input type="hidden" name="{{ key }}" value="{{ value }}">
+                        {% endfor %}
+                      {% endif %}
+                    {% endfor %}
+                    <input type="hidden" name="export" value="pdf">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Export PDF</button>
+                  </form>
+                </div>
+              </div>
+              <form method="get" class="mb-2">
+                {% for key, values in request.args.lists() %}
+                  {% if key != 'status_filter' and key != 'export' %}
+                    {% for value in values %}
+                      <input type="hidden" name="{{ key }}" value="{{ value }}">
+                    {% endfor %}
+                  {% endif %}
+                {% endfor %}
+                {% set selected = params.status_filter if params and params.status_filter else ['all'] %}
+                <div class="performer-filter-group">
+                  <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="all" {{ 'checked' if 'all' in selected else '' }}><span>All</span></label>
+                  <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="top" {{ 'checked' if 'top' in selected else '' }}><span>Top</span></label>
+                  <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="mid" {{ 'checked' if 'mid' in selected else '' }}><span>Mid</span></label>
+                  <label class="performer-filter-option"><input type="checkbox" name="status_filter" value="bottom" {{ 'checked' if 'bottom' in selected else '' }}><span>Bottom</span></label>
+                  <button type="submit" class="btn btn-primary btn-sm">Apply Filter</button>
+                </div>
+              </form>
+              <p class="text-secondary small mb-2">Showing {{ analysis_rows|length }} of {{ analysis_total }} rows.</p>
+              <div class="table-wrap">
+                <table class="table table-bordered align-middle mb-0">
+                  <thead><tr><th>Entity</th><th>Spend</th><th>Ads Sales</th><th>Total Sales</th><th>Average ACOS</th><th>Performer</th><th>Recommendation</th></tr></thead>
+                  <tbody>
+                    {% for row in analysis_rows %}
+                    <tr>
+                      <td>{{ row.label }}</td>
+                      <td>{{ '%.2f'|format(row.spend) }}</td>
+                      <td>{{ '%.2f'|format(row.ads_sales) }}</td>
+                      <td>{{ '%.2f'|format(row.total_sales) }}</td>
+                      <td>{{ '%.2f'|format(row.efficiency) }}%</td>
+                      <td>{{ row.status }}</td>
+                      <td>{{ row.recommendation }}</td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="7" class="text-center text-muted">No detailed rows available.</td></tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </main>
+</div>
+{% if show_results %}
+<script>
+(() => {
+  const trendRows = {{ trend | tojson }};
+  const topSkuRows = {{ top_sku_entities | tojson }};
+  const adTypeShare = {{ ad_type_share | tojson }};
+
+  const textColor = '#475569';
+  const gridColor = 'rgba(148, 163, 184, 0.28)';
+
+  if (document.querySelector('#spendSalesChart') && trendRows.length) {
+    new ApexCharts(document.querySelector('#spendSalesChart'), {
+      chart: { type: 'bar', height: 320, toolbar: { show: false } },
+      series: [
+        { name: 'Spend', data: trendRows.map(r => Number(r.spend || 0)) },
+        { name: 'Sales', data: trendRows.map(r => Number(r.ads_sales || 0)) }
+      ],
+      xaxis: { categories: trendRows.map(r => r.month), labels: { style: { colors: textColor } } },
+      yaxis: { labels: { style: { colors: textColor } } },
+      grid: { borderColor: gridColor },
+      colors: ['#0ea5e9', '#2563eb'],
+      legend: { position: 'top' }
+    }).render();
+  }
+
+  const adTypeLabels = Object.keys(adTypeShare || {});
+  const adTypeValues = adTypeLabels.map(k => Number((adTypeShare[k] || {}).spend || 0));
+  if (document.querySelector('#adTypeShareChart') && adTypeLabels.length) {
+    new ApexCharts(document.querySelector('#adTypeShareChart'), {
+      chart: { type: 'donut', height: 320, toolbar: { show: false } },
+      labels: adTypeLabels,
+      series: adTypeValues,
+      colors: ['#2563eb', '#06b6d4', '#8b5cf6', '#f59e0b'],
+      legend: { position: 'bottom' },
+      dataLabels: {
+        formatter: (val) => Number(val || 0).toFixed(2) + '%'
+      },
+      tooltip: {
+        y: {
+          formatter: (value) => Number(value || 0).toFixed(2)
+        }
+      }
+    }).render();
+  }
+
+  if (document.querySelector('#topSkuAdsSalesChart') && topSkuRows.length) {
+    new ApexCharts(document.querySelector('#topSkuAdsSalesChart'), {
+      chart: { type: 'bar', height: 320, toolbar: { show: false } },
+      series: [{ name: 'Ads Sales', data: topSkuRows.map(r => Number(r.ads_sales || 0)) }],
+      xaxis: { categories: topSkuRows.map(r => r.name), labels: { style: { colors: textColor }, rotate: -35 } },
+      yaxis: { labels: { style: { colors: textColor } } },
+      grid: { borderColor: gridColor },
+      colors: ['#10b981']
+    }).render();
+  }
+})();
+</script>
+{% endif %}
+</body>
+</html>

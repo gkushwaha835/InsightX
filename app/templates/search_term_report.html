@@ -1,0 +1,704 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page_title }}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}?v=20260426">
+    <script src="{{ url_for('static', filename='js/theme.js') }}?v=20260426"></script>
+    <style>
+        body {
+            background: #f3f4f8;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #0f172a;
+        }
+
+        .page-shell {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 20px 12px 34px;
+        }
+
+        .panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .hero {
+            padding: 24px;
+            margin-bottom: 14px;
+        }
+
+        .tag {
+            display: inline-block;
+            color: #0f172a;
+            background: #e2e8f0;
+            border-radius: 999px;
+            padding: 4px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            margin-top: 14px;
+            margin-bottom: 10px;
+            font-size: 38px;
+            line-height: 1.08;
+            font-weight: 800;
+        }
+
+        .hero-copy {
+            color: #64748b;
+            margin-bottom: 0;
+        }
+
+        .section {
+            margin-bottom: 16px;
+        }
+
+        .section .card-body {
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .subcopy {
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .kpi-card {
+            padding: 18px;
+            height: 100%;
+        }
+
+        .kpi-label {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .kpi-value {
+            font-size: clamp(1.35rem, 1.8vw, 2rem);
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .kpi-copy {
+            color: #64748b;
+            margin: 8px 0 0;
+            font-size: 0.86rem;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        .table th {
+            white-space: nowrap;
+            background: #f8fafc;
+        }
+
+        .table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .compact-table th,
+        .compact-table td {
+            font-size: 13px;
+            padding: 0.48rem 0.58rem;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #fbfdff;
+        }
+
+        .table-collapsible .table-wrap,
+        .table-collapsible .subcopy {
+            display: none;
+        }
+
+        .table-collapsible.open .table-wrap,
+        .table-collapsible.open .subcopy {
+            display: block;
+        }
+
+        .table-toggle-row {
+            margin-bottom: 8px;
+        }
+
+        .table-toggle-btn {
+            border: 1px solid #cbd5e1;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .truncate-campaign {
+            display: inline-block;
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: bottom;
+        }
+
+        .mono {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hero-logo { display: block; height: 40px; width: auto; }
+        .chart-panel {
+            padding: 18px;
+        }
+        .chart-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .chart-title {
+            margin: 0;
+            font-size: 1.04rem;
+            font-weight: 800;
+            color: #001534;
+        }
+        .chart-copy {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 0.88rem;
+        }
+        .chart-box {
+            position: relative;
+            height: 280px;
+        }
+        .chart-box.short {
+            height: 240px;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-layout">
+  <aside class="side-nav">
+    <div class="side-brand">
+      <img src="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425" alt="InsightX">
+      <span>InsightX</span>
+    </div>
+    <div class="side-nav-links">
+      <a class="side-link" href="{{ url_for('main.home') }}"><i class="bi bi-house-fill"></i> Home</a>
+      <a class="side-link" href="{{ url_for('reports.ads_overview') }}"><i class="bi bi-grid-1x2-fill"></i> Ads Overview</a>
+      <a class="side-link" href="{{ url_for('reports.campaign_performance_report') }}"><i class="bi bi-bar-chart-fill"></i> Campaign Report</a>
+      <a class="side-link active" href="{{ url_for('reports.search_term_report') }}"><i class="bi bi-search"></i> Search Term Report</a>
+      <a class="side-link" href="{{ url_for('main.settings') }}"><i class="bi bi-gear-fill"></i> Settings</a>
+    </div>
+    <div class="side-help">
+      <h6>Need Help?</h6>
+      <p>Check guides or contact support if something looks off.</p>
+      <a class="btn btn-light btn-sm w-100 fw-semibold" href="mailto:connect.insightx@gmail.com">Contact Support</a>
+    </div>
+  </aside>
+
+  <main class="main-shell">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="burger-btn" type="button" aria-label="Menu"><i class="bi bi-list fs-4"></i></button>
+        <div class="text-secondary small fw-semibold">Workspace Dashboard</div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <button id="themeToggle" data-theme-toggle class="btn btn-sm btn-outline-secondary theme-toggle-btn" type="button" aria-label="Toggle theme">🌙</button>
+        <div class="topbar-user">
+          <span class="topbar-avatar">{{ (display_name[:1] if display_name else (user.username[:1] if user and user.username else 'U'))|upper }}</span>
+          <span>{{ display_name if display_name else (user.username if user else 'User') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-shell">
+    <div class="panel hero">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+            <div>
+                <span class="tag">Search Term Analysis</span>
+                <h1 class="hero-title">Search Term Performance Report</h1>
+                <p class="hero-copy">Upload search term files and get decision-ready buckets in one place.</p>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+            </div>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    {% if report_error %}
+        <div class="alert alert-danger">{{ report_error }}</div>
+    {% endif %}
+
+    <div class="panel section">
+        <div class="card-body">
+           
+            <div class="section-title">Upload New Search Term Report</div>
+            <p class="subcopy">Upload a new Search Term file and run fresh analysis.</p>
+            <form method="POST" enctype="multipart/form-data" class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold mb-1">Import File (Excel/CSV)</label>
+                    <input type="file" name="search_term_file" class="form-control" accept=".xlsx,.xls,.csv" required>
+                </div>
+                <!-- <div class="col-md-3">
+                    <label class="form-label fw-semibold mb-1">Date Range</label>
+                    <select name="search_term_range" class="form-select" required>
+                        <option value="7">Last 7 Days</option>
+                        <option value="14">Last 14 Days</option>
+                        <option value="30" selected>Last 30 Days</option>
+                        <option value="60">Last 60 Days</option>
+                    </select>
+                </div> -->
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Analyze Search Terms</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if report %}
+        <div class="row g-3 mb-3">
+            <div class="col-xl-3 col-md-6">
+                <div class="panel kpi-card">
+                    <div class="kpi-label">Unique Terms</div>
+                    <div class="kpi-value mono">{{ filtered_term_count }}</div>
+                    <div class="kpi-copy">Filtered by {{ filter_label }}</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6">
+                <div class="panel kpi-card">
+                    <div class="kpi-label">Total Spend</div>
+                    <div class="kpi-value mono">{{ '%.2f'|format(kpi_summary.spend or 0) }}</div>
+                    <div class="kpi-copy">Ad spend</div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-md-6"><div class="panel kpi-card"><div class="kpi-label">Total Sales</div><div class="kpi-value mono">{{ '%.2f'|format(kpi_summary.sales or 0) }}</div>
+            <div class="kpi-copy">Attributed sales</div></div></div>
+             <div class="col-xl-3 col-md-6"><div class="panel kpi-card"><div class="kpi-label">ROAS</div><div class="kpi-value mono">{{ '%.2f'|format(kpi_summary.roas or 0) }}</div><div class="kpi-copy">Sales / spend ratio</div></div></div>
+        </div>
+        <div class="row g-3 mb-4">           
+            <div class="col-xl-3 col-md-6"><div class="panel kpi-card"><div class="kpi-label">ACOS</div><div class="kpi-value mono">{{ '%.2f'|format(kpi_summary.acos or 0) }}%</div><div class="kpi-copy">Spend / sales ratio</div></div></div>
+            <div class="col-xl-3 col-md-6"><div class="panel kpi-card"><div class="kpi-label">CTR</div><div class="kpi-value mono">{{ '%.2f'|format(kpi_summary.ctr or 0) }}%</div><div class="kpi-copy">Clicks / impressions</div></div></div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-xl-8">
+                <div class="panel chart-panel h-100">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Search Term Spend vs Sales</h4>
+                            <p class="chart-copy">Top search terms by sales with spend comparison.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box">
+                        <canvas id="stSpendSalesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-4">
+                <div class="panel chart-panel mb-3">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Section Mix</h4>
+                            <p class="chart-copy">Distribution of the main analysis buckets.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box short">
+                        <canvas id="stSectionMixChart"></canvas>
+                    </div>
+                </div>
+                <div class="panel chart-panel">
+                    <div class="chart-head">
+                        <div>
+                            <h4 class="chart-title">Top CTR Terms</h4>
+                            <p class="chart-copy">Highest CTR terms in the current file view.</p>
+                        </div>
+                    </div>
+                    <div class="chart-box short">
+                        <canvas id="stCtrChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel section">
+            <div class="card-body">
+                <div class="section-title">Search Term Type Filter</div>
+                <p class="subcopy">Apply one filter across all analysis tables below.</p>
+                <form method="GET" class="row g-3 align-items-end">
+                    <input type="hidden" name="targeting_query" value="{{ targeting_query }}">
+                    <input type="hidden" name="section" value="{{ selected_section }}">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold mb-1">Filter</label>
+                        <select name="term_type_filter" class="form-select">
+                            <option value="all" {% if term_type_filter == 'all' %}selected{% endif %}>All Terms</option>
+                            <option value="asin" {% if term_type_filter == 'asin' %}selected{% endif %}>ASIN Only (B0...)</option>
+                            <option value="keyword" {% if term_type_filter == 'keyword' %}selected{% endif %}>Keywords Only</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold mb-1">Rows To Show</label>
+                        <select name="rows_limit" class="form-select">
+                            <option value="5" {% if rows_limit == 5 %}selected{% endif %}>Show 5</option>
+                            <option value="10" {% if rows_limit == 10 %}selected{% endif %}>Show 10</option>
+                            <option value="15" {% if rows_limit == 15 %}selected{% endif %}>Show 15</option>
+                            <option value="20" {% if rows_limit == 20 %}selected{% endif %}>Show 20</option>
+                            <option value="all" {% if rows_limit == 0 %}selected{% endif %}>Show All</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-outline-dark w-100">Apply Filter</button></div>
+                    <div class="col-12"><div class="kpi-copy mt-1">Active filter: <strong>{{ filter_label }}</strong> | Rows: <strong>{{ rows_label }}</strong> | Matching terms: <strong>{{ filtered_term_count }}</strong></div></div>
+                </form>
+            </div>
+        </div>
+
+        <div class="panel section">
+            <div class="card-body">
+                <div class="section-title">Analysis Sections</div>
+                <p class="subcopy">Open analysis section-wise; one table is shown at a time.</p>
+                <div class="d-flex flex-wrap gap-2">
+                    {% set nav = [
+                        ('top_by_sales','Top Sales'),
+                        ('top_by_spend','Top Spend'),
+                        ('high_acos','High ACOS'),
+                        ('high_roas','High ROAS'),
+                        ('low_roas','Low ROAS'),
+                        ('winners','Winners'),
+                        ('high_spend_no_sales','High Spend No Orders'),
+                        ('high_clicks_no_orders','High Clicks No Orders'),
+                        ('low_ctr','Low CTR'),
+                        ('top_ctr','Top CTR'),
+                        ('hidden_gems','Hidden Gems')
+                    ] %}
+                    {% for key, label in nav %}
+                        <button type="button"
+                                class="btn section-switch {% if selected_section == key %}btn-dark{% else %}btn-outline-dark{% endif %} btn-sm"
+                                data-target="{{ key }}">
+                            {{ label }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="analysis-panel {% if selected_section != 'plan_action' %}d-none{% endif %}" data-section="plan_action">
+        <div class="panel section" id="plan-action-section">
+            <div class="card-body">
+                <div class="section-title">Plan of Action (Targeting vs Customer Search Term)</div>
+                <p class="subcopy">Search a targeting term to check match alignment with customer search terms and get action suggestions.</p>
+                <form method="GET" action="{{ url_for('reports.search_term_report') }}#plan-action-section" class="row g-3 align-items-end">
+                    <input type="hidden" name="term_type_filter" value="{{ term_type_filter }}">
+                    <input type="hidden" name="rows_limit" value="{{ rows_limit if rows_limit != 0 else 'all' }}">
+                    <input type="hidden" name="section" value="plan_action">
+                    <div class="col-md-8"><label class="form-label fw-semibold mb-1">Targeting Term</label><input type="text" class="form-control" name="targeting_query" value="{{ targeting_query }}" placeholder="Type targeting/keyword/ASIN term"></div>
+                    <div class="col-md-2"><button type="submit" class="btn btn-outline-dark w-100">Get Plan</button></div>
+                    <div class="col-md-2"><a href="{{ url_for('reports.search_term_report') }}#plan-action-section" class="btn btn-outline-secondary w-100">Clear</a></div>
+                </form>
+                {% if targeting_query %}
+                    <div class="kpi-copy mt-3">Results for: <strong>{{ targeting_query }}</strong> | Match: <strong>{{ plan_match_count }}</strong> | Not Match: <strong>{{ plan_no_match_count }}</strong></div>
+                    <div class="table-wrap mt-2">
+                        <table class="table table-bordered table-sm mb-0 compact-table">
+                            <thead><tr><th>Targeting Term</th><th>Customer Search Term</th><th>Match Type</th><th>Match Status</th><th>Campaign Name</th><th>Ad Group Name</th><th>Spend</th><th>Sales</th><th>Orders</th><th>ACOS</th><th>ROAS</th><th>Username</th><th>Plan of Action</th></tr></thead>
+                            <tbody>
+                            {% for row in plan_rows %}
+                                <tr>
+                                    <td>{{ row.targeting_text }}</td><td>{{ row.customer_search_term }}</td><td>{{ 'Automatic' if (row.match_type|string|trim) == '-' else row.match_type }}</td><td>{{ row.match_result }}</td><td>{{ row.campaign_name }}</td><td>{{ row.ad_group_name }}</td>
+                                    <td class="mono">{{ '%.2f'|format(row.spend or 0) }}</td><td class="mono">{{ '%.2f'|format(row.sales or 0) }}</td><td class="mono">{{ row.orders or 0 }}</td><td class="mono">{{ '%.2f'|format(row.acos or 0) }}%</td><td class="mono">{{ '%.2f'|format(row.roas or 0) }}</td>
+                                </tr>
+                            {% else %}
+                                <tr><td colspan="13" class="text-center text-muted">No rows found for this targeting term in selected filters.</td></tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        </div>
+
+        {% macro st_table(section_key, title, subcopy, rows, cols, empty_text='No terms available.') -%}
+        <div class="analysis-panel {% if selected_section != section_key %}d-none{% endif %}" data-section="{{ section_key }}">
+        <div class="row g-3 mb-2"><div class="col-md-12"><div class="panel section"><div class="card-body">
+            <div class="section-title">{{ title }}</div>
+            <p class="subcopy">{{ subcopy }}</p>
+            <div class="table-wrap"><table class="table table-bordered table-sm mb-0 compact-table">
+                <thead><tr>{% for c in cols %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+                <tbody>
+                {% for row in rows %}
+                    <tr>
+                        {% for c in cols %}
+                            {% set key = c|lower|replace(' ', '_')|replace(',', '')|replace('(', '')|replace(')', '') %}
+                            {% if c == 'Search Term' %}<td>{{ row.search_term }}</td>{% elif c == 'Match Type' %}<td>{{ 'Automatic' if (row.match_type|string|trim) == '-' else row.match_type }}</td>{% elif c == 'Campaign Name' %}<td>{{ row.campaign_name }}</td>{% elif c == 'Ad Group Name' %}<td>{{ row.ad_group_name }}</td>{% elif c == 'Spend' %}<td class='mono'>{{ '%.2f'|format(row.spend or 0) }}</td>{% elif c == 'Sales' %}<td class='mono'>{{ '%.2f'|format(row.sales or 0) }}</td>{% elif c == 'Orders' %}<td class='mono'>{{ row.orders or 0 }}</td>{% elif c == 'ACOS' %}<td class='mono'>{{ '%.2f'|format(row.acos or 0) }}%</td>{% elif c == 'ROAS' %}<td class='mono'>{{ '%.2f'|format(row.roas or 0) }}</td>{% elif c == 'Clicks' %}<td class='mono'>{{ row.clicks or 0 }}</td>{% elif c == 'CPC' %}<td class='mono'>{{ '%.2f'|format(row.cpc or 0) }}</td>{% elif c == 'Impressions' %}<td class='mono'>{{ row.impressions or 0 }}</td>{% elif c == 'CTR' %}<td class='mono'>{{ '%.2f'|format(row.ctr or 0) }}%</td>{% elif c == 'Action' %}<td>Add as Negative</td>{% else %}<td></td>{% endif %}
+                        {% endfor %}
+                    </tr>
+                {% else %}
+                    <tr><td colspan="{{ cols|length }}" class="text-center text-muted">{{ empty_text }}</td></tr>
+                {% endfor %}
+                </tbody>
+            </table></div>
+        </div></div></div></div>
+        </div>
+        {%- endmacro %}
+
+        {{ st_table('top_by_sales', 'Top Search Terms By Sales', 'Highest sales contributors from this report window.', sections.top_by_sales or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Sales','Orders','ACOS']) }}
+        {{ st_table('top_by_spend', 'Top Search Terms By Spend', 'Highest spend terms to track cost concentration.', sections.top_by_spend or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Clicks','Orders','CPC']) }}
+        {{ st_table('high_acos', 'High ACOS Terms (Above 30%)', 'Terms where spend is high compared to sales, useful for bid and negative strategy checks.', sections.high_acos or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Sales','Orders','ACOS','ROAS'], 'No high ACOS terms found.') }}
+        {{ st_table('high_roas', 'High ROAS Terms', 'Search terms ranked by highest ROAS.', sections.high_roas or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Sales','ROAS','ACOS']) }}
+        {{ st_table('low_roas', 'Low ROAS Terms', 'Search terms ranked by lowest ROAS.', sections.low_roas or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Sales','ROAS','ACOS']) }}
+        {{ st_table('winners', 'Winners To Scale', 'Orders >= 2, ACOS <= 30% and positive sales.', sections.winners or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Orders','Sales','Spend','ACOS'], 'No terms matched this rule.') }}
+        {{ st_table('high_spend_no_sales', 'High Spend But No Orders', 'Spend >= threshold and no orders.', sections.high_spend_no_sales or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Spend','Clicks','Sales','Action'], 'No terms matched this rule.') }}
+        {{ st_table('high_clicks_no_orders', 'High Clicks, No Orders', 'Clicks >= threshold and no orders.', sections.high_clicks_no_orders or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Clicks','Spend'], 'No terms matched this rule.') }}
+        {{ st_table('low_ctr', 'Low CTR Terms', 'Search terms ranked by lowest CTR (with impressions >= 200).', sections.low_ctr or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Impressions','CTR'], 'No terms matched this rule.') }}
+        {{ st_table('top_ctr', 'Top CTR Terms', 'Search terms ranked by highest CTR (with impressions >= 200).', sections.top_ctr or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Impressions','Clicks','CTR'], 'No terms matched this rule.') }}
+        {{ st_table('hidden_gems', 'Hidden Gems', 'Low-click but profitable opportunities.', sections.hidden_gems or [], ['Search Term','Match Type','Campaign Name','Ad Group Name','Clicks','Orders','Sales','ROAS'], 'No hidden gems found.') }}
+    {% endif %}
+</div>
+
+<script>
+(() => {
+    const spendSalesRows = [
+        {% for row in (sections.top_by_sales or [])[:6] %}
+        { label: {{ row.search_term|tojson }}, sales: {{ row.sales or 0 }}, spend: {{ row.spend or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const ctrRows = [
+        {% for row in (sections.top_ctr or [])[:6] %}
+        { label: {{ row.search_term|tojson }}, ctr: {{ row.ctr or 0 }} }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    const sectionMix = {
+        'Top Sales': {{ (sections.top_by_sales or [])|length }},
+        'Top Spend': {{ (sections.top_by_spend or [])|length }},
+        'High ACOS': {{ (sections.high_acos or [])|length }},
+        'Winners': {{ (sections.winners or [])|length }},
+        'High Spend / No Orders': {{ (sections.high_spend_no_sales or [])|length }},
+        'High Clicks / No Orders': {{ (sections.high_clicks_no_orders or [])|length }},
+        'Low CTR': {{ (sections.low_ctr or [])|length }},
+        'Top CTR': {{ (sections.top_ctr or [])|length }},
+        'Hidden Gems': {{ (sections.hidden_gems or [])|length }},
+    };
+
+    const palette = ['#2563eb', '#06b6d4', '#8b5cf6', '#f97316', '#10b981', '#ef4444', '#eab308', '#14b8a6', '#ec4899'];
+    const gridColor = 'rgba(15, 23, 42, 0.08)';
+
+    function makeGradient(ctx) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(37, 99, 235, 0.92)');
+        gradient.addColorStop(1, 'rgba(96, 165, 250, 0.15)');
+        return gradient;
+    }
+
+    function shortLabel(text, maxLen = 28) {
+        const value = String(text || '');
+        return value.length > maxLen ? `${value.slice(0, maxLen - 1)}…` : value;
+    }
+
+    const spendSalesCanvas = document.getElementById('stSpendSalesChart');
+    if (spendSalesCanvas && spendSalesRows.length && window.Chart) {
+        const ctx = spendSalesCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: spendSalesRows.map((item) => shortLabel(item.label, 24)),
+                datasets: [
+                    {
+                        label: 'Sales',
+                        data: spendSalesRows.map((item) => item.sales),
+                        backgroundColor: makeGradient(ctx),
+                        borderColor: '#2563eb',
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 34,
+                    },
+                    {
+                        label: 'Spend',
+                        data: spendSalesRows.map((item) => item.spend),
+                        backgroundColor: 'rgba(14, 165, 233, 0.20)',
+                        borderColor: '#0ea5e9',
+                        borderRadius: 10,
+                        borderSkipped: false,
+                        maxBarThickness: 34,
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 10, useBorderRadius: true } },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => spendSalesRows[items[0].dataIndex]?.label || items[0].label,
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: '#56708f' } },
+                    y: { grid: { display: false }, ticks: { color: '#56708f', autoSkip: false } }
+                }
+            }
+        });
+    }
+
+    const mixCanvas = document.getElementById('stSectionMixChart');
+    if (mixCanvas && window.Chart) {
+        const ctx = mixCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(sectionMix),
+                datasets: [{
+                    data: Object.values(sectionMix),
+                    backgroundColor: palette,
+                    borderWidth: 0,
+                    hoverOffset: 6,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '68%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 10 } }
+                }
+            }
+        });
+    }
+
+    const ctrCanvas = document.getElementById('stCtrChart');
+    if (ctrCanvas && ctrRows.length && window.Chart) {
+        const ctx = ctrCanvas.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ctrRows.map((item) => shortLabel(item.label, 24)),
+                datasets: [{
+                    label: 'CTR %',
+                    data: ctrRows.map((item) => item.ctr),
+                    backgroundColor: ctrRows.map((_, idx) => palette[idx % palette.length]),
+                    borderRadius: 10,
+                    borderSkipped: false,
+                    maxBarThickness: 24,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => ctrRows[items[0].dataIndex]?.label || items[0].label,
+                        }
+                    }
+                },
+                scales: {
+                    x: { grid: { color: gridColor }, ticks: { color: '#56708f' } },
+                    y: { grid: { display: false }, ticks: { color: '#56708f', autoSkip: false } }
+                }
+            }
+        });
+    }
+})();
+</script>
+
+<script>
+(() => {
+    const sectionButtons = Array.from(document.querySelectorAll('.section-switch'));
+    const analysisPanels = Array.from(document.querySelectorAll('.analysis-panel'));
+
+    const setActiveSection = (key) => {
+        analysisPanels.forEach((panel) => {
+            panel.classList.toggle('d-none', panel.getAttribute('data-section') !== key);
+        });
+        sectionButtons.forEach((btn) => {
+            const active = btn.getAttribute('data-target') === key;
+            btn.classList.toggle('btn-dark', active);
+            btn.classList.toggle('btn-outline-dark', !active);
+        });
+        document.querySelectorAll('input[name=\"section\"]').forEach((input) => {
+            input.value = key;
+        });
+    };
+
+    sectionButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-target') || 'top_by_sales';
+            setActiveSection(target);
+        });
+    });
+
+    setActiveSection('{{ selected_section }}');
+
+    document.querySelectorAll('.table').forEach((table) => {
+        const headerCells = Array.from(table.querySelectorAll('thead th'));
+        const campaignIndex = headerCells.findIndex((th) => (th.textContent || '').trim().toLowerCase() === 'campaign name');
+        const adGroupIndex = headerCells.findIndex((th) => (th.textContent || '').trim().toLowerCase() === 'ad group name');
+        const targetIndexes = [campaignIndex, adGroupIndex].filter((index) => index >= 0);
+
+        if (targetIndexes.length === 0) {
+            return;
+        }
+
+        table.querySelectorAll('tbody tr').forEach((tr) => {
+            targetIndexes.forEach((index) => {
+                const td = tr.children[index];
+                if (!td) {
+                    return;
+                }
+
+                const text = (td.textContent || '').trim();
+                if (text === '' || td.querySelector('.truncate-campaign')) {
+                    return;
+                }
+
+                td.textContent = '';
+                const span = document.createElement('span');
+                span.className = 'truncate-campaign';
+                span.title = text;
+                span.textContent = text;
+                td.appendChild(span);
+            });
+        });
+    });
+
+})();
+</script>
+</div>
+</main>
+</div>
+</body>
+</html>
+
+
+
+

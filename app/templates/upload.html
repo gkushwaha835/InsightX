@@ -1,0 +1,97 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Monthly Ads Report</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            min-height: 100vh;
+            margin: 0;
+            background:
+                radial-gradient(circle at top left, rgba(34, 197, 94, 0.18), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 30%),
+                linear-gradient(135deg, #f8fafc 0%, #ecfeff 45%, #f0fdf4 100%);
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .upload-card {
+            border: 0;
+            border-radius: 24px;
+            box-shadow: 0 28px 60px rgba(15, 23, 42, 0.12);
+            background: rgba(255, 255, 255, 0.96);
+        }
+
+        .upload-input {
+            border-radius: 14px;
+            padding: 12px 14px;
+        }
+
+        .upload-btn {
+            border-radius: 14px;
+            padding: 12px 16px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #14532d 0%, #22c55e 100%);
+            border: 0;
+        }
+
+        .upload-brand-logo {
+            display: block;
+            width: 100%;
+            max-width: 320px;
+            height: auto;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="mb-1">InsightX</h2>
+                <img src="{{ url_for('static', filename='images/insightx-favicon.png') }}?v=20260425" alt="InsightX" class="upload-brand-logo">
+                <p class="text-muted mb-0">Uploading a new file will replace all previous monthly analysis data.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="#" onclick="if (window.history.length > 1) { window.history.back(); } else { window.location.href='{{ url_for('main.home') }}'; } return false;" class="btn btn-outline-dark">Back</a>
+                <a href="{{ url_for('main.home') }}" class="btn btn-outline-secondary">Home</a>
+            </div>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card upload-card">
+            <div class="card-body p-4 p-md-5">
+                <div class="alert alert-warning">
+                    <strong>Replace mode is active:</strong> when you upload a new report, old data from <code>monthly_ads</code> will be removed and replaced with the latest file.
+                </div>
+
+                <form method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Upload Bulk Downloaded File (Ads)</label>
+                        <input type="file" name="file" class="form-control upload-input" accept=".xlsx,.xls" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Upload Business Report File (Organic)</label>
+                        <input type="file" name="business_file" class="form-control upload-input" accept=".xlsx,.xls,.csv" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success upload-btn">Upload And Replace Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+

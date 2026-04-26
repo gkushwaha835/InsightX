@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 140" role="img" aria-label="InsightX logo">
+  <defs>
+    <linearGradient id="ix-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="620" height="140" fill="none"/>
+  <g transform="translate(18 22)">
+    <rect x="0" y="0" width="92" height="92" rx="22" fill="url(#ix-grad)"/>
+    <rect x="22" y="18" width="12" height="56" rx="6" fill="#ffffff"/>
+    <path d="M48 22 L72 70 M72 22 L48 70" stroke="#ffffff" stroke-width="10" stroke-linecap="round"/>
+  </g>
+  <text x="132" y="87" font-family="Segoe UI, Tahoma, Arial, sans-serif" font-size="64" font-weight="700" fill="#0f172a">Insight</text>
+  <text x="392" y="87" font-family="Segoe UI, Tahoma, Arial, sans-serif" font-size="64" font-weight="800" fill="url(#ix-grad)">X</text>
+</svg>

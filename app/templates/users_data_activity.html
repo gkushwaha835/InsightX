@@ -1,0 +1,94 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">User Activity Details</h4>
+  <a href="{{ url_for('main.users_data') }}" class="btn btn-outline-secondary">Back to Users Data</a>
+</div>
+
+{% if restore_batch and restore_batch_count > 0 %}
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+  <div>{{ restore_batch_count }} deleted row(s) available for restore.</div>
+  <form method="post" action="{{ url_for('main.users_data_restore') }}" class="m-0">
+    <input type="hidden" name="batch_id" value="{{ restore_batch }}">
+    <button type="submit" class="btn btn-sm btn-warning">Restore</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-1"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">ID</div><div class="fw-semibold">{{ user_code }}</div></div></div></div>
+  <div class="col-md-3"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Email</div><div class="fw-semibold">{{ user_email }}</div></div></div></div>
+  <div class="col-md-2"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Phone</div><div class="fw-semibold">{{ phone_number }}</div></div></div></div>
+  <div class="col-md-2"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Brand Name</div><div class="fw-semibold">{{ brand_name }}</div></div></div></div>
+  <div class="col-md-2"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Total Activities</div><div class="fw-semibold">{{ total_activities }}</div></div></div></div>
+  <div class="col-md-2"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">First Activity</div><div class="fw-semibold">{{ first_activity_at }}</div></div></div></div>
+  <div class="col-md-2"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Last Activity</div><div class="fw-semibold">{{ last_activity_at }}</div></div></div></div>
+  <div class="col-md-1"><div class="card shadow-sm"><div class="card-body"><div class="text-muted small">Duration</div><div class="fw-semibold">{{ usage_duration }}</div></div></div></div>
+</div>
+
+<div class="card shadow-sm mb-4">
+  <div class="card-body">
+    <h6 class="mb-3">Option Usage Summary</h6>
+    <div class="d-flex gap-2 flex-wrap">
+      {% for option, count in option_counts %}
+        <span class="badge text-bg-light border">{{ option }}: {{ count }}</span>
+      {% else %}
+        <span class="text-muted">No option usage found.</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped mb-0 align-middle">
+        <thead>
+          <tr>
+            <th>Option Used</th>
+            <th>File Name</th>
+            <th>Created At</th>
+            <th>View File</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if ads_report_available %}
+          <tr>
+            <td>View Ads report</td>
+            <td>{{ mom_dashboard_log.file_name }} + {{ mom_business_log.file_name }}</td>
+            <td>{{ ads_report_created_at }}</td>
+            <td>
+              <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('main.users_data_ads_report', dashboard_log_id=mom_dashboard_log.id, business_log_id=mom_business_log.id) }}" class="btn btn-sm btn-outline-primary">View Ads Report</a>
+              </div>
+            </td>
+          </tr>
+          {% endif %}
+          {% for log in logs %}
+          <tr>
+            <td>{{ log.option_used }}</td>
+            <td>{{ log.file_name }}</td>
+            <td>{{ log.created_at }}</td>
+            <td>
+              <div class="d-flex gap-2 flex-wrap">
+                <a href="{{ url_for('main.users_data_view', log_id=log.id) }}" class="btn btn-sm btn-outline-primary">View</a>
+                <a href="{{ url_for('main.users_data_download', log_id=log.id) }}" class="btn btn-sm btn-outline-dark">Download</a>
+                <form method="post" action="{{ url_for('main.users_data_delete_file', log_id=log.id) }}" onsubmit="return confirm('Move this activity row to recycle bin?');">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete File</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-center text-muted">No activity logs found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+
+

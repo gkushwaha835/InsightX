@@ -1,0 +1,12 @@
+body {
+  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 48%, #f0f9ff 100%);
+  min-height: 100vh;
+}
+.metric-card {
+  border: 0;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+.table thead th {
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
