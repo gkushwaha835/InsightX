@@ -282,6 +282,7 @@
       </div>
       {% endif %}
 
+      {% if show_results %}
       <div class="hero-card mb-4">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
           <div>
@@ -341,7 +342,6 @@
         </form>
       </div>
 
-      {% if show_results %}
       <div class="row g-3 mb-4">
         <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">Total Spend</div><div class="metric-value">{{ overview.total_spend }}</div></div></div></div>
         <div class="col-md-3"><div class="metric-card h-100"><div class="card-body"><div class="metric-label">Ads Sales</div><div class="metric-value">{{ overview.ads_sales }}</div></div></div></div>
